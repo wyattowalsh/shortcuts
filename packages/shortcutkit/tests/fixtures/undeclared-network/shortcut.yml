@@ -25,3 +25,5 @@ tests:
     enabled: true
   runtime:
     enabled: false
+  manual:
+    - Fixture-only manual verification placeholder.

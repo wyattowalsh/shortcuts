@@ -1,21 +1,13 @@
-import hashlib
 import json
 import subprocess
 from pathlib import Path
 
 from shortcutkit.adapters import build_package
+from shortcutkit.assets import icon_metadata, sha256_file
 from shortcutkit.manifest import load_manifest, load_manifest_data
 from shortcutkit.models import ReleaseMetadata
 from shortcutkit.paths import package_root
 from shortcutkit.security import audit_package, permission_badges
-
-
-def sha256_file(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
 
 
 def current_commit(root: Path) -> str | None:
@@ -44,12 +36,25 @@ def release_metadata(path: Path) -> ReleaseMetadata:
                 "bytes": artifact.stat().st_size,
             }
         )
+    assets = []
+    if icon := icon_metadata(root, manifest):
+        assets.append({"kind": "icon", **icon})
+    for asset in sorted((root / "dist").glob("*.bundled.html")) if (root / "dist").exists() else []:
+        assets.append(
+            {
+                "kind": "html-runtime",
+                "path": str(asset.relative_to(root)),
+                "sha256": sha256_file(asset),
+                "bytes": asset.stat().st_size,
+            }
+        )
     return ReleaseMetadata(
         package_id=manifest.id,
         version=manifest.version,
         source_commit=current_commit(root),
         manifest=load_manifest_data(root),
         audit=audit_package(root, strict=False),
+        assets=assets,
         artifacts=artifacts,
         build=build_package(root),
     )
@@ -69,6 +74,12 @@ def release_notes(path: Path) -> str:
             f"- `{artifact['path']}` SHA-256 `{artifact['sha256']}`"
             for artifact in metadata.artifacts
         ]
+    asset_lines = ["- No package assets are declared."]
+    if metadata.assets:
+        asset_lines = [
+            f"- `{asset['path']}` ({asset['kind']}) SHA-256 `{asset['sha256']}`"
+            for asset in metadata.assets
+        ]
     lines = [
         f"# {metadata.manifest['name']} {metadata.version}",
         "",
@@ -87,6 +98,10 @@ def release_notes(path: Path) -> str:
         "## Artifacts",
         "",
         *artifact_lines,
+        "",
+        "## Assets",
+        "",
+        *asset_lines,
         "",
         "## Risk Summary",
         "",

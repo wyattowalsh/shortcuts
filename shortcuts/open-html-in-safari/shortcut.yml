@@ -1,0 +1,75 @@
+id: com.shortcuts.open-html-in-safari
+name: Open HTML
+version: 0.1.0
+summary: Open bundled single-file HTML in Safari on iOS or iPadOS.
+category: productivity
+status: experimental
+license: MIT
+maintainers:
+  - name: shortcuts maintainers
+icon:
+  path: icon.png
+  alt: Open HTML shortcut icon with an HTML document, Safari compass, and share arrow.
+  shortcut_icon_support: Cherri supports built-in color and glyph icons only; icon.png is used for catalog, docs, and release metadata.
+  cherri_fallback:
+    color: purple
+    glyph: magicWand
+compatibility:
+  platforms:
+    ios: ">=18"
+    ipados: ">=18"
+  devices:
+    apple_intelligence_required: false
+source:
+  mode: cherri
+  entrypoint: src/open-html-in-safari.cherri
+declared_permissions:
+  clipboard:
+    read: false
+    write: false
+  network:
+    allowed: false
+    domains: []
+  files:
+    read: true
+    scope: share-sheet-input
+  ai:
+    uses_model_action: false
+  shell: false
+  url_schemes:
+    - data
+html_runtime:
+  profiles:
+    - id: local-bundled
+      support: constrained
+      entrypoint: dist/Open HTML.bundled.html
+      output: dist/Open HTML.bundled.html
+      notes: Use `shortcutkit html bundle` to inline supported local CSS and JavaScript before sharing the HTML text into the shortcut.
+    - id: hosted
+      support: supported
+      provider: here-now
+      notes: Use `shortcutkit html publish --provider here-now --dry-run` to plan a hosted multi-file Safari runtime; real publish requires explicit approval.
+  size_gates:
+    green_raw_bytes: 512000
+    yellow_raw_bytes: 2097152
+    red_above_raw_bytes: 2097152
+security:
+  tier: sensitive
+  data_leaves_device: false
+  review_status: source-reviewed
+tests:
+  static:
+    enabled: true
+  runtime:
+    enabled: false
+  manual:
+    - Compile the Cherri source on a machine with the external Cherri compiler installed.
+    - Import the generated shortcut into Apple Shortcuts on iOS or iPadOS.
+    - Build a constrained local bundle with `uv run shortcutkit html bundle path/to/index.html --output path/to/index.bundled.html --json`.
+    - Share the bundled HTML text into Open HTML and verify it shows the starting progress notification before opening Safari.
+    - Confirm Safari opens a `data:text/html;base64,...` page and JavaScript already inlined into the bundled HTML runs.
+    - For multi-file HTML, run `uv run shortcutkit html publish path/to/site --provider here-now --dry-run --json` first, then perform any real hosted publish only after explicit approval.
+    - Confirm the flow does not stop in Quick Look and does not wait on an Open In picker.
+    - Share a large bundled HTML file and confirm Safari either opens it or iOS fails without modifying the source file.
+    - Run the shortcut with no share-sheet input and verify it stops with the configured no-input message.
+    - Confirm the shortcut reads shared HTML text, base64-encodes it, opens a data URL, and does not request clipboard, AI, shell, or network actions.

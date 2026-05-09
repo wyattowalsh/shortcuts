@@ -38,3 +38,7 @@ tests:
     enabled: true
   runtime:
     enabled: false
+  manual:
+    - Import the shortcut into Apple Shortcuts and confirm the network action targets example.com only.
+    - Run with network access enabled and verify the fetched note is copied to the clipboard.
+    - Run with network access unavailable and confirm the shortcut fails without leaking additional data.

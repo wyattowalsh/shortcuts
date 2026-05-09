@@ -4,6 +4,8 @@
       "audit_passed": true,
       "category": "ai",
       "domains": [],
+      "html_runtime": null,
+      "icon": null,
       "id": "com.shortcuts.examples.ai-summarize",
       "name": "AI Summarize",
       "path": "shortcuts/examples/ai-summarize",
@@ -11,7 +13,7 @@
         "ai",
         "clipboard"
       ],
-      "review_required": false,
+      "review_required": true,
       "security_tier": "sensitive",
       "status": "experimental",
       "summary": "Summarize clipboard text with an explicitly declared model action.",
@@ -21,13 +23,15 @@
       "audit_passed": true,
       "category": "productivity",
       "domains": [],
+      "html_runtime": null,
+      "icon": null,
       "id": "com.shortcuts.examples.clean-clipboard",
       "name": "Clean Clipboard",
       "path": "shortcuts/examples/clean-clipboard",
       "permission_badges": [
         "clipboard"
       ],
-      "review_required": false,
+      "review_required": true,
       "security_tier": "interactive",
       "status": "experimental",
       "summary": "Normalize clipboard text by trimming whitespace and removing common tracking parameters.",
@@ -39,6 +43,8 @@
       "domains": [
         "example.com"
       ],
+      "html_runtime": null,
+      "icon": null,
       "id": "com.shortcuts.examples.network-note",
       "name": "Network Note",
       "path": "shortcuts/examples/network-note",
@@ -46,10 +52,56 @@
         "clipboard",
         "network"
       ],
-      "review_required": false,
+      "review_required": true,
       "security_tier": "sensitive",
       "status": "experimental",
       "summary": "Fetch a text note from an approved example endpoint and copy it to the clipboard.",
+      "version": "0.1.0"
+    },
+    {
+      "audit_passed": true,
+      "category": "productivity",
+      "domains": [],
+      "html_runtime": {
+        "profiles": [
+          {
+            "entrypoint": "dist/Open HTML.bundled.html",
+            "id": "local-bundled",
+            "notes": "Use `shortcutkit html bundle` to inline supported local CSS and JavaScript before sharing the HTML text into the shortcut.",
+            "output": "dist/Open HTML.bundled.html",
+            "support": "constrained"
+          },
+          {
+            "id": "hosted",
+            "notes": "Use `shortcutkit html publish --provider here-now --dry-run` to plan a hosted multi-file Safari runtime; real publish requires explicit approval.",
+            "provider": "here-now",
+            "support": "supported"
+          }
+        ],
+        "size_gates": {
+          "green_raw_bytes": 512000,
+          "red_above_raw_bytes": 2097152,
+          "yellow_raw_bytes": 2097152
+        }
+      },
+      "icon": {
+        "alt": "Open HTML shortcut icon with an HTML document, Safari compass, and share arrow.",
+        "bytes": 1890486,
+        "docs_path": "/catalog-icons/com.shortcuts.open-html-in-safari.png",
+        "path": "icon.png",
+        "sha256": "4413115dfe470147c8240fa8e0231469032adb24f579db2e708e218b65fdd702"
+      },
+      "id": "com.shortcuts.open-html-in-safari",
+      "name": "Open HTML",
+      "path": "shortcuts/open-html-in-safari",
+      "permission_badges": [
+        "files",
+        "url-schemes"
+      ],
+      "review_required": true,
+      "security_tier": "sensitive",
+      "status": "experimental",
+      "summary": "Open bundled single-file HTML in Safari on iOS or iPadOS.",
       "version": "0.1.0"
     }
   ],

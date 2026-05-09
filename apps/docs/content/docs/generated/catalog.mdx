@@ -14,7 +14,7 @@ generated: true
 - Path: `shortcuts/examples/ai-summarize`
 - Security tier: `sensitive`
 - Permission badges: `ai, clipboard`
-- Review required: `false`
+- Review required: `true`
 
 Summarize clipboard text with an explicitly declared model action.
 
@@ -26,7 +26,7 @@ Summarize clipboard text with an explicitly declared model action.
 - Path: `shortcuts/examples/clean-clipboard`
 - Security tier: `interactive`
 - Permission badges: `clipboard`
-- Review required: `false`
+- Review required: `true`
 
 Normalize clipboard text by trimming whitespace and removing common tracking parameters.
 
@@ -38,6 +38,27 @@ Normalize clipboard text by trimming whitespace and removing common tracking par
 - Path: `shortcuts/examples/network-note`
 - Security tier: `sensitive`
 - Permission badges: `clipboard, network`
-- Review required: `false`
+- Review required: `true`
 
 Fetch a text note from an approved example endpoint and copy it to the clipboard.
+
+## Open HTML
+
+![Open HTML shortcut icon with an HTML document, Safari compass, and share arrow.](/catalog-icons/com.shortcuts.open-html-in-safari.png)
+
+- ID: `com.shortcuts.open-html-in-safari`
+- Version: `0.1.0`
+- Status: `experimental`
+- Path: `shortcuts/open-html-in-safari`
+- Security tier: `sensitive`
+- Permission badges: `files, url-schemes`
+- Review required: `true`
+- Icon: `icon.png`
+- Icon SHA-256: `4413115dfe470147c8240fa8e0231469032adb24f579db2e708e218b65fdd702`
+
+Open bundled single-file HTML in Safari on iOS or iPadOS.
+
+### HTML Runtime
+
+- `local-bundled`: `constrained`. Use `shortcutkit html bundle` to inline supported local CSS and JavaScript before sharing the HTML text into the shortcut.
+- `hosted`: `supported` via `here-now`. Use `shortcutkit html publish --provider here-now --dry-run` to plan a hosted multi-file Safari runtime; real publish requires explicit approval.

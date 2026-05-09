@@ -22,6 +22,26 @@
 			"remediation": "Declare clipboard.write and explain whether the mutation is reversible."
 		},
 		{
+			"id": "files.read",
+			"name": "Read Shared File",
+			"risk_tier": "interactive",
+			"permissions": ["files.read"],
+			"detectors": [
+				"Get File",
+				"Get Contents of Folder",
+				"Get File from Folder",
+				"Open File",
+				"getFileLink(ShortcutInput",
+				"getText(ShortcutInput)",
+				"openFile(ShortcutInput",
+				"quicklook(ShortcutInput",
+				"ShortcutInput.file"
+			],
+			"docs_url": "/docs/security/permissions#files",
+			"notes": "Reads a file explicitly provided as shortcut input. Review file type, scope, and rendering behavior.",
+			"remediation": "Declare files.read and document whether file content can execute, render, or leave the device."
+		},
+		{
 			"id": "network.request",
 			"name": "Network Request",
 			"risk_tier": "sensitive",

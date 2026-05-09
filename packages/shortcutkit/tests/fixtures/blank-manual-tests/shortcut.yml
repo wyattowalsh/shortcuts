@@ -1,0 +1,29 @@
+id: com.shortcuts.tests.blank-manual-tests
+name: Blank Manual Tests
+version: 0.1.0
+summary: Fixture that uses a whitespace-only manual verification step.
+category: testing
+status: experimental
+license: MIT
+maintainers:
+  - name: test maintainer
+source:
+  mode: manual
+  entrypoint: src/shortcut.md
+declared_permissions:
+  clipboard:
+    read: false
+    write: false
+  network:
+    allowed: false
+  ai:
+    uses_model_action: false
+  shell: false
+  url_schemes: []
+tests:
+  static:
+    enabled: true
+  runtime:
+    enabled: false
+  manual:
+    - "   "

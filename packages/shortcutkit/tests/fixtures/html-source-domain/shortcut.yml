@@ -1,0 +1,34 @@
+id: com.shortcuts.tests.html-source-domain
+name: HTML Source Domain Fixture
+version: 0.1.0
+summary: Fixture for HTML source scanning.
+category: testing
+status: experimental
+license: MIT
+maintainers:
+  - name: test maintainer
+source:
+  mode: manual
+  entrypoint: src/index.html
+declared_permissions:
+  clipboard:
+    read: false
+    write: false
+  network:
+    allowed: false
+    domains: []
+  ai:
+    uses_model_action: false
+  shell: false
+  url_schemes: []
+security:
+  tier: sensitive
+  data_leaves_device: false
+  review_status: fixture
+tests:
+  static:
+    enabled: true
+  runtime:
+    enabled: false
+  manual:
+    - Fixture-only manual verification placeholder.

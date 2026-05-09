@@ -36,3 +36,7 @@ tests:
     enabled: true
   runtime:
     enabled: false
+  manual:
+    - Import the shortcut into Apple Shortcuts and confirm the action list matches src/shortcut.md.
+    - Run with clipboard text containing leading/trailing whitespace and verify the clipboard is trimmed.
+    - Run with a URL containing common tracking parameters and verify the cleaned URL remains valid.

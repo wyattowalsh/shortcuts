@@ -38,3 +38,7 @@ tests:
     enabled: true
   runtime:
     enabled: false
+  manual:
+    - Import the shortcut into Apple Shortcuts and confirm it uses the declared model action.
+    - Run with representative clipboard text and verify the summary replaces the clipboard contents.
+    - Review the system privacy prompt and confirm model execution matches the declared provider and data-egress notes.

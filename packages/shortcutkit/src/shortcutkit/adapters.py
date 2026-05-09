@@ -1,6 +1,7 @@
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -77,6 +78,12 @@ def adapters_json() -> str:
         json.dumps([adapter.model_dump() for adapter in adapter_infos()], indent=2, sort_keys=True)
         + "\n"
     )
+
+
+def _artifact_stem(name: str) -> str:
+    stem = re.sub(r"[^A-Za-z0-9 ._-]+", " ", name).strip(" ._-")
+    stem = re.sub(r"\s+", " ", stem)
+    return stem or "Shortcut"
 
 
 def _entrypoint_under_root(root: Path, entrypoint: str | None) -> Path | None:
@@ -161,7 +168,12 @@ def build_package(path: Path, *, run_external: bool = False) -> BuildMetadata:
             status="unavailable",
             message=adapter.install or f"Install {adapter.id} and retry.",
         )
+    artifact_path: Path | None = None
     command = [adapter.binary, str(entrypoint)]
+    if adapter.id == "cherri":
+        artifact_path = root / "dist" / f"{_artifact_stem(manifest.name)}.shortcut"
+        command.append("--derive-uuids")
+        command.append(f"--output={artifact_path}")
     if not run_external:
         return BuildMetadata(
             package_id=manifest.id,
@@ -172,13 +184,26 @@ def build_package(path: Path, *, run_external: bool = False) -> BuildMetadata:
             status="skipped",
             message="External adapter command resolved; pass --run-external to execute it.",
         )
+    if adapter.id == "cherri" and artifact_path is not None:
+        artifact_path.parent.mkdir(parents=True, exist_ok=True)
     subprocess.run(command, cwd=root, check=True)
+    if adapter.id == "cherri":
+        unsigned_sidecar = entrypoint.parent / f"{_artifact_stem(manifest.name)}_unsigned.shortcut"
+        source_dir = entrypoint.parent.resolve()
+        unsigned_sidecar = unsigned_sidecar.resolve()
+        if (
+            unsigned_sidecar.exists()
+            and unsigned_sidecar != artifact_path
+            and unsigned_sidecar.parent == source_dir
+        ):
+            unsigned_sidecar.unlink()
     return BuildMetadata(
         package_id=manifest.id,
         adapter_id=adapter.id,
         command=command,
         environment={"PATH": os.environ.get("PATH", "")},
         source_hash=source_hash(root),
+        artifact_path=str(artifact_path.relative_to(root)) if artifact_path else None,
         status="built",
         message="External adapter completed successfully.",
     )

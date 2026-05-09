@@ -1,0 +1,16 @@
+#include 'actions/web'
+#include 'actions/documents'
+
+#define name Open HTML
+#define glyph magicWand
+#define color purple
+#define inputs file
+#define from sharesheet
+#define noinput stopwith "Share a local .html file to open it in Safari."
+#define mac false
+#define version 18
+
+showNotification("Opening bundled HTML in Safari. Use shortcutkit html publish for multi-file sites.", "Open HTML", false)
+@htmlText = getText(ShortcutInput)
+@encodedHtml = base64Encode(@htmlText)
+openURL("data:text/html;base64,{@encodedHtml}")

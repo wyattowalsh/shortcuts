@@ -19,7 +19,15 @@ SEVERITY_BY_RISK = {
 }
 Severity = Literal["info", "low", "medium", "high", "critical"]
 URL_PATTERN = re.compile(r"https?://[^\s)>'\"]+")
-SCHEME_PATTERN = re.compile(r"\b([a-z][a-z0-9+.-]*)://", re.IGNORECASE)
+SCHEME_PATTERN = re.compile(r"\b([a-z][a-z0-9+.-]*):(?=//|[A-Za-z0-9])", re.IGNORECASE)
+PERMISSION_PATH_BY_ACTION = {
+    "clipboard.read": "clipboard.read",
+    "clipboard.write": "clipboard.write",
+    "files.read": "files.read",
+    "shell.run": "shell",
+    "network.request": "network.allowed",
+    "ai.model": "ai.uses_model_action",
+}
 
 
 def _permission_enabled(permissions: dict[str, Any], dotted: str) -> bool:
@@ -35,7 +43,7 @@ def _declared_schemes(permissions: dict[str, Any]) -> set[str]:
     raw = permissions.get("url_schemes", [])
     if not isinstance(raw, list):
         return set()
-    return {str(item).lower().removesuffix("://") for item in raw}
+    return {str(item).lower().split(":", 1)[0] for item in raw if str(item).strip()}
 
 
 def _normalize_domain(value: str) -> str | None:
@@ -60,7 +68,20 @@ def _source_files(root: Path) -> list[Path]:
     source_root = root / "src"
     if not source_root.exists():
         return []
-    suffixes = {".md", ".txt", ".json", ".yaml", ".yml", ".shortcutsource", ".cherri", ".jelly"}
+    suffixes = {
+        ".md",
+        ".txt",
+        ".json",
+        ".yaml",
+        ".yml",
+        ".shortcutsource",
+        ".cherri",
+        ".jelly",
+        ".html",
+        ".css",
+        ".js",
+        ".mjs",
+    }
     return sorted(
         file_path
         for file_path in source_root.glob("**/*")
@@ -100,15 +121,8 @@ def _schemes(root: Path) -> list[str]:
 
 def _declared_findings(permissions: dict[str, Any]) -> list[Finding]:
     findings: list[Finding] = []
-    declared = {
-        "clipboard.read": "clipboard.read",
-        "clipboard.write": "clipboard.write",
-        "shell.run": "shell",
-        "network.request": "network.allowed",
-        "ai.model": "ai.uses_model_action",
-    }
     actions = action_map()
-    for action_id, permission_path in declared.items():
+    for action_id, permission_path in PERMISSION_PATH_BY_ACTION.items():
         if not _permission_enabled(permissions, permission_path):
             continue
         action = actions[action_id]
@@ -126,25 +140,34 @@ def _declared_findings(permissions: dict[str, Any]) -> list[Finding]:
                 else "maintainer",
             )
         )
+    schemes = sorted(_declared_schemes(permissions))
+    if schemes:
+        findings.append(
+            Finding(
+                id="declared.url_schemes",
+                title="URL schemes declared",
+                severity="medium",
+                status="declared",
+                detail=f"Manifest declares URL schemes: {', '.join(schemes)}.",
+                path="shortcut.yml",
+                remediation="Review each non-HTTP URL scheme for user intent and data exposure.",
+                review_required="maintainer",
+                evidence=schemes,
+            )
+        )
     return findings
 
 
 def _detected_findings(root: Path, permissions: dict[str, Any]) -> list[Finding]:
     findings: list[Finding] = []
     actions = action_map()
-    permission_paths = {
-        "clipboard.read": "clipboard.read",
-        "clipboard.write": "clipboard.write",
-        "shell.run": "shell",
-        "network.request": "network.allowed",
-        "ai.model": "ai.uses_model_action",
-        "url-scheme.callback": "url_schemes",
-    }
     for action in actions.values():
         evidence = _evidence_for_action(root, action)
         if not evidence:
             continue
-        permission_path = permission_paths.get(action.id)
+        permission_path = PERMISSION_PATH_BY_ACTION.get(action.id)
+        if action.id == "url-scheme.callback":
+            permission_path = "url_schemes"
         declared = False
         if permission_path == "url_schemes":
             declared = bool(_declared_schemes(permissions))
@@ -238,6 +261,36 @@ def _artifact_findings(root: Path) -> list[Finding]:
     return findings
 
 
+def _html_runtime_findings(html_runtime: dict[str, Any] | None) -> list[Finding]:
+    if not isinstance(html_runtime, dict):
+        return []
+    findings: list[Finding] = []
+    profiles = html_runtime.get("profiles", [])
+    if not isinstance(profiles, list):
+        return findings
+    for profile in profiles:
+        if not isinstance(profile, dict):
+            continue
+        if profile.get("id") == "hosted":
+            provider = profile.get("provider", "unknown")
+            findings.append(
+                Finding(
+                    id="reviewed.html_runtime.hosted",
+                    title="Hosted HTML runtime profile declared",
+                    severity="info",
+                    status="reviewed",
+                    detail=(
+                        f"Manifest declares hosted HTML publishing via {provider}; this is "
+                        "developer-initiated egress, not a shortcut runtime network action."
+                    ),
+                    path="shortcut.yml",
+                    remediation="Require explicit approval before real hosted publishes.",
+                    review_required="maintainer",
+                )
+            )
+    return findings
+
+
 def permission_badges(audit: SecurityAudit) -> list[str]:
     badges: set[str] = set()
     for finding in audit.findings:
@@ -245,6 +298,8 @@ def permission_badges(audit: SecurityAudit) -> list[str]:
             badges.add("clipboard")
         if "network" in finding.id:
             badges.add("network")
+        if "files" in finding.id:
+            badges.add("files")
         if "shell" in finding.id:
             badges.add("shell")
         if "ai.model" in finding.id:
@@ -252,6 +307,10 @@ def permission_badges(audit: SecurityAudit) -> list[str]:
         if "url" in finding.id:
             badges.add("url-schemes")
     return sorted(badges)
+
+
+def _review_required(findings: list[Finding]) -> bool:
+    return any(finding.review_required for finding in findings)
 
 
 def audit_package(path: Path, *, strict: bool) -> SecurityAudit:
@@ -265,6 +324,7 @@ def audit_package(path: Path, *, strict: bool) -> SecurityAudit:
     findings.extend(_domain_findings(root, permissions))
     findings.extend(_url_scheme_findings(root, permissions))
     findings.extend(_artifact_findings(root))
+    findings.extend(_html_runtime_findings(manifest.html_runtime))
 
     if not (root / "src").exists():
         findings.append(
@@ -306,7 +366,7 @@ def audit_package(path: Path, *, strict: bool) -> SecurityAudit:
             ),
             "domains": domains,
             "finding_counts": dict(sorted(severities.items())),
-            "review_required": any(f.review_required == "two-reviewer" for f in findings),
+            "review_required": _review_required(findings),
         },
         findings=findings,
     )

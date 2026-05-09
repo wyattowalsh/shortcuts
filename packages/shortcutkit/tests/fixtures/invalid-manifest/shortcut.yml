@@ -10,3 +10,10 @@ maintainers:
 source:
   mode: manual
 declared_permissions: {}
+tests:
+  static:
+    enabled: true
+  runtime:
+    enabled: false
+  manual:
+    - Fixture-only manual verification placeholder.

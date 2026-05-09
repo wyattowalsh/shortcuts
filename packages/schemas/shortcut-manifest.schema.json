@@ -14,7 +14,8 @@
 		"license",
 		"maintainers",
 		"source",
-		"declared_permissions"
+		"declared_permissions",
+		"tests"
 	],
 	"properties": {
 		"id": {
@@ -78,11 +79,108 @@
 		"declared_permissions": {
 			"type": "object"
 		},
+		"icon": {
+			"type": "object",
+			"required": ["path"],
+			"properties": {
+				"path": {
+					"type": "string",
+					"pattern": "^(?!/)(?!.*(^|/)\\.\\.(/|$)).+\\.png$"
+				},
+				"alt": {
+					"type": "string",
+					"minLength": 1
+				}
+			},
+			"additionalProperties": true
+		},
+		"html_runtime": {
+			"type": "object",
+			"properties": {
+				"profiles": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"required": ["id", "support"],
+						"properties": {
+							"id": {
+								"enum": ["hosted", "local-bundled"]
+							},
+							"support": {
+								"enum": ["supported", "constrained", "unsupported"]
+							},
+							"provider": {
+								"type": "string"
+							},
+							"entrypoint": {
+								"type": "string"
+							},
+							"output": {
+								"type": "string"
+							},
+							"notes": {
+								"type": "string"
+							}
+						},
+						"additionalProperties": true
+					}
+				},
+				"size_gates": {
+					"type": "object"
+				}
+			},
+			"additionalProperties": true
+		},
 		"security": {
 			"type": "object"
 		},
 		"tests": {
-			"type": "object"
+			"type": "object",
+			"properties": {
+				"static": {
+					"type": "object"
+				},
+				"runtime": {
+					"type": "object",
+					"properties": {
+						"enabled": {
+							"type": "boolean"
+						}
+					},
+					"additionalProperties": true
+				},
+				"manual": {
+					"type": "array",
+					"minItems": 1,
+					"items": {
+						"type": "string",
+						"pattern": "\\S"
+					}
+				}
+			},
+			"allOf": [
+				{
+					"if": {
+						"not": {
+							"required": ["runtime"],
+							"properties": {
+								"runtime": {
+									"required": ["enabled"],
+									"properties": {
+										"enabled": {
+											"const": true
+										}
+									}
+								}
+							}
+						}
+					},
+					"then": {
+						"required": ["manual"]
+					}
+				}
+			],
+			"additionalProperties": true
 		},
 		"release": {
 			"type": "object"

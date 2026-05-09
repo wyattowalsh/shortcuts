@@ -1,4 +1,5 @@
 import json
+import sys
 from pathlib import Path
 from typing import Annotated
 
@@ -8,7 +9,8 @@ from rich.console import Console
 from shortcutkit import __version__
 from shortcutkit.adapters import adapter_infos, adapters_json, build_package
 from shortcutkit.catalog import catalog_file, discover_manifests, render_catalog
-from shortcutkit.docs import generated_reference
+from shortcutkit.docs import generated_reference, sync_catalog_icon_assets
+from shortcutkit.html_runtime import HtmlRuntimeError, analyze_html, bundle_html, publish_html
 from shortcutkit.linting import lint_package
 from shortcutkit.manifest import ManifestError, load_manifest
 from shortcutkit.paths import find_repo_root
@@ -22,8 +24,14 @@ security_app = typer.Typer(help="Security review commands.")
 docs_app = typer.Typer(help="Documentation generation commands.")
 adapter_app = typer.Typer(help="Adapter capability commands.")
 release_app = typer.Typer(help="Release metadata commands.")
+html_app = typer.Typer(help="HTML runtime commands.")
 console = Console()
+error_console = Console(stderr=True)
 DEFAULT_DOCS_ROOT = Path("apps/docs")
+
+
+def _stdout(text: str) -> None:
+    sys.stdout.write(text)
 
 
 def version_callback(value: bool) -> None:
@@ -65,6 +73,18 @@ def lint(path: Path) -> None:
     console.print("[green]lint passed[/]")
 
 
+def _validate_and_lint_quiet(path: Path, *, command: str) -> None:
+    try:
+        issues = lint_package(path)
+    except (FileNotFoundError, ManifestError) as exc:
+        error_console.print(f"[red]{command} failed:[/] {exc}")
+        raise typer.Exit(1) from exc
+    if issues:
+        for issue in issues:
+            error_console.print(f"[red]issue:[/] {issue}")
+        raise typer.Exit(1)
+
+
 @catalog_app.command("generate")
 def catalog_generate(
     check: bool = typer.Option(False, "--check", help="Fail if catalog/shortcuts.json is stale."),
@@ -85,7 +105,7 @@ def catalog_generate(
 
 @security_app.command("audit")
 def security_audit(
-    path: Path | None = None,
+    path: Annotated[Path | None, typer.Argument()] = None,
     strict: bool = typer.Option(
         False, "--strict", help="Fail closed for unknown high-risk findings."
     ),
@@ -104,12 +124,11 @@ def security_audit(
         raise typer.Exit(1) from exc
     if json_output:
         if len(audits) == 1:
-            console.print(audit_json(audits[0]), end="")
+            _stdout(audit_json(audits[0]))
         else:
-            console.print(
+            _stdout(
                 json.dumps([audit.model_dump() for audit in audits], indent=2, sort_keys=True)
-                + "\n",
-                end="",
+                + "\n"
             )
     else:
         for audit in audits:
@@ -131,13 +150,18 @@ def docs_generate(
     target = docs_root / "content" / "docs" / "generated" / "catalog.mdx"
     output = generated_reference()
     if check:
+        stale_icons = sync_catalog_icon_assets(docs_root, check=True)
         if not target.exists() or target.read_text(encoding="utf-8") != output:
             console.print(f"[red]generated docs drift:[/] {target}")
+            raise typer.Exit(1)
+        if stale_icons:
+            console.print(f"[red]generated icon drift:[/] {stale_icons[0]}")
             raise typer.Exit(1)
         console.print("[green]generated docs up to date[/]")
         return
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(output, encoding="utf-8")
+    sync_catalog_icon_assets(docs_root)
     console.print(f"[green]wrote[/] {target}")
 
 
@@ -146,7 +170,7 @@ def adapter_check(
     json_output: bool = typer.Option(False, "--json", help="Emit JSON output."),
 ) -> None:
     if json_output:
-        console.print(adapters_json(), end="")
+        _stdout(adapters_json())
         return
     console.print("adapter capability matrix")
     for adapter in adapter_infos():
@@ -162,11 +186,14 @@ def build(
     ),
     json_output: bool = typer.Option(False, "--json", help="Emit JSON build metadata."),
 ) -> None:
-    validate(path)
-    lint(path)
+    if json_output:
+        _validate_and_lint_quiet(path, command="build")
+    else:
+        validate(path)
+        lint(path)
     result = build_package(path, run_external=run_external)
     if json_output:
-        console.print(result.model_dump_json(indent=2), end="\n")
+        _stdout(result.model_dump_json(indent=2) + "\n")
     else:
         console.print(f"build {result.status}: {result.message}")
     if result.status == "unavailable":
@@ -179,10 +206,14 @@ def test(
     run: bool = typer.Option(False, "--run", help="Run optional macOS runtime tests."),
     json_output: bool = typer.Option(False, "--json", help="Emit JSON runtime result."),
 ) -> None:
-    validate(path)
+    if json_output:
+        _validate_and_lint_quiet(path, command="test")
+    else:
+        validate(path)
+        lint(path)
     result = runtime_test_package(path, run=run)
     if json_output:
-        console.print(runtime_result_json(result), end="")
+        _stdout(runtime_result_json(result))
     else:
         console.print(f"runtime test {result.status}: {result.message}")
     if result.status == "failed":
@@ -191,7 +222,7 @@ def test(
 
 @release_app.command("metadata")
 def release_metadata_command(path: Path) -> None:
-    console.print(release_metadata_json(release_metadata(path)), end="")
+    _stdout(release_metadata_json(release_metadata(path)))
 
 
 @release_app.command("notes")
@@ -201,11 +232,73 @@ def release_notes_command(
 ) -> None:
     rendered = release_notes(path)
     if output is None:
-        console.print(rendered)
+        _stdout(rendered + "\n")
         return
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(rendered, encoding="utf-8")
     console.print(f"[green]wrote[/] {output}")
+
+
+@html_app.command("analyze")
+def html_analyze(
+    entrypoint: Path,
+    json_output: bool = typer.Option(False, "--json", help="Emit JSON analysis output."),
+) -> None:
+    try:
+        analysis = analyze_html(entrypoint)
+    except HtmlRuntimeError as exc:
+        console.print(f"[red]html analyze failed:[/] {exc}")
+        raise typer.Exit(1) from exc
+    if json_output:
+        _stdout(analysis.model_dump_json(indent=2) + "\n")
+        return
+    console.print(f"HTML local-bundled profile: {analysis.status}")
+    console.print(f"Size gate: {analysis.size_gate}; raw bytes: {analysis.raw_bytes}")
+    for diagnostic in analysis.diagnostics:
+        console.print(f"- {diagnostic.severity} {diagnostic.id}: {diagnostic.detail}")
+    if analysis.status == "unsupported":
+        raise typer.Exit(1)
+
+
+@html_app.command("bundle")
+def html_bundle(
+    entrypoint: Path,
+    output: Annotated[Path, typer.Option("--output")],
+    json_output: bool = typer.Option(False, "--json", help="Emit JSON bundle output."),
+) -> None:
+    try:
+        result = bundle_html(entrypoint, output)
+    except HtmlRuntimeError as exc:
+        console.print(f"[red]html bundle failed:[/] {exc}")
+        raise typer.Exit(1) from exc
+    if json_output:
+        _stdout(result.model_dump_json(indent=2) + "\n")
+    else:
+        console.print(f"html bundle {result.status}: {result.message}")
+    if result.status == "failed":
+        raise typer.Exit(1)
+
+
+@html_app.command("publish")
+def html_publish(
+    site: Path,
+    provider: str = typer.Option("here-now", "--provider", help="Static host provider."),
+    dry_run: bool = typer.Option(False, "--dry-run", help="Plan publish without network egress."),
+    run: bool = typer.Option(False, "--run", help="Attempt a real provider publish."),
+    json_output: bool = typer.Option(False, "--json", help="Emit JSON publish output."),
+) -> None:
+    _ = dry_run
+    try:
+        result = publish_html(site, provider=provider, run=run)
+    except HtmlRuntimeError as exc:
+        console.print(f"[red]html publish failed:[/] {exc}")
+        raise typer.Exit(1) from exc
+    if json_output:
+        _stdout(result.model_dump_json(indent=2) + "\n")
+    else:
+        console.print(f"html publish {result.status}: {result.message}")
+    if result.status == "blocked":
+        raise typer.Exit(1)
 
 
 app.add_typer(catalog_app, name="catalog")
@@ -213,3 +306,4 @@ app.add_typer(security_app, name="security")
 app.add_typer(docs_app, name="docs")
 app.add_typer(adapter_app, name="adapter")
 app.add_typer(release_app, name="release")
+app.add_typer(html_app, name="html")

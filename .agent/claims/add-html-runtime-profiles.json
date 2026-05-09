@@ -1,0 +1,30 @@
+{
+	"id": "add-html-runtime-profiles",
+	"agent": "opencode",
+	"status": "completed",
+	"claimed_at": "2026-05-09T21:42:13Z",
+	"summary": "Implement approved Open HTML runtime profiles: here.now hosted Safari profile and constrained local bundled HTML profile.",
+	"scope": [
+		"OpenSpec change add-html-runtime-profiles",
+		"shortcutkit HTML analyze, bundle, and here.now publish commands",
+		"Open HTML shortcut package runtime contract",
+		"manifest schema, catalog/docs, release metadata, and security audit updates",
+		"tests and fixtures for HTML runtime behavior"
+	],
+	"paths": [
+		"openspec/changes/add-html-runtime-profiles/",
+		"packages/shortcutkit/src/shortcutkit/",
+		"packages/shortcutkit/tests/",
+		"packages/schemas/shortcut-manifest.schema.json",
+		"packages/actiondb/actions.json",
+		"shortcuts/open-html-in-safari/",
+		"catalog/catalog.json",
+		"apps/docs/content/docs/generated/catalog.mdx"
+	],
+	"notes": [
+		"Worktree was already dirty before this claim; preserve unrelated user/agent changes and do not touch shortcuts_codex_jumpstart_prompt_v3.md.",
+		"Do not import, install, open, run, sign, or rebuild shortcuts in the user's Shortcuts library without explicit approval.",
+		"Do not perform a real here.now publish without explicit approval; dry-run behavior is allowed.",
+		"Treat .shortcut files as generated release artifacts, not canonical source."
+	]
+}
