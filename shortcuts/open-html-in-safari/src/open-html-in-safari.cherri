@@ -1,5 +1,7 @@
 #include 'actions/web'
 #include 'actions/documents'
+#include 'actions/text'
+#include 'actions/crypto'
 
 #define name Open HTML
 #define glyph magicWand
