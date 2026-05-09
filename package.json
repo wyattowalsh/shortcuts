@@ -1,0 +1,19 @@
+{
+	"name": "shortcuts",
+	"private": true,
+	"packageManager": "pnpm@10.11.0",
+	"scripts": {
+		"build": "turbo build",
+		"lint": "turbo lint",
+		"typecheck": "turbo typecheck",
+		"test": "turbo test",
+		"docs:build": "pnpm --filter @shortcuts/docs build",
+		"docs:dev": "pnpm --filter @shortcuts/docs dev",
+		"catalog:check": "uv run shortcutkit catalog generate --check",
+		"security:audit": "uv run shortcutkit security audit --strict"
+	},
+	"devDependencies": {
+		"turbo": "latest",
+		"typescript": "latest"
+	}
+}

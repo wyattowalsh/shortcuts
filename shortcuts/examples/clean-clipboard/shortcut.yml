@@ -1,0 +1,38 @@
+id: com.shortcuts.examples.clean-clipboard
+name: Clean Clipboard
+version: 0.1.0
+summary: Normalize clipboard text by trimming whitespace and removing common tracking parameters.
+category: productivity
+status: experimental
+license: MIT
+maintainers:
+  - name: shortcuts maintainers
+compatibility:
+  platforms:
+    ios: ">=18"
+    ipados: ">=18"
+    macos: ">=15"
+  devices:
+    apple_intelligence_required: false
+source:
+  mode: manual
+  entrypoint: src/shortcut.md
+declared_permissions:
+  clipboard:
+    read: true
+    write: true
+  network:
+    allowed: false
+  ai:
+    uses_model_action: false
+  shell: false
+  url_schemes: []
+security:
+  tier: interactive
+  data_leaves_device: false
+  review_status: seed-reviewed
+tests:
+  static:
+    enabled: true
+  runtime:
+    enabled: false

@@ -1,0 +1,70 @@
+{
+	"version": "0.1.0",
+	"actions": [
+		{
+			"id": "clipboard.read",
+			"name": "Read Clipboard",
+			"risk_tier": "interactive",
+			"permissions": ["clipboard.read"],
+			"detectors": ["Get Clipboard"],
+			"docs_url": "/docs/security/permissions#clipboard",
+			"notes": "Reads user clipboard content. Review data handling and write-back behavior.",
+			"remediation": "Declare clipboard.read and document the clipboard data lifecycle."
+		},
+		{
+			"id": "clipboard.write",
+			"name": "Write Clipboard",
+			"risk_tier": "interactive",
+			"permissions": ["clipboard.write"],
+			"detectors": ["Set Clipboard"],
+			"docs_url": "/docs/security/permissions#clipboard",
+			"notes": "Mutates clipboard content. Review user intent and reversibility.",
+			"remediation": "Declare clipboard.write and explain whether the mutation is reversible."
+		},
+		{
+			"id": "network.request",
+			"name": "Network Request",
+			"risk_tier": "sensitive",
+			"permissions": ["network"],
+			"detectors": ["Get Contents of URL", "http://", "https://", "fetch("],
+			"docs_url": "/docs/security/network-and-url-schemes",
+			"notes": "May transmit data off device. Require destination and data class review.",
+			"remediation": "Declare network.allowed, list allowed domains, and describe data egress."
+		},
+		{
+			"id": "shell.run",
+			"name": "Run Shell Script",
+			"risk_tier": "high",
+			"permissions": ["shell"],
+			"detectors": [
+				"Run Shell Script",
+				"do shell script",
+				"#!/bin/",
+				"subprocess"
+			],
+			"docs_url": "/docs/security/permissions#shell",
+			"notes": "Can execute arbitrary commands. Strict mode requires explicit review.",
+			"remediation": "Avoid shell execution where possible; otherwise require explicit declaration and two-reviewer approval."
+		},
+		{
+			"id": "ai.model",
+			"name": "AI Model Action",
+			"risk_tier": "sensitive",
+			"permissions": ["ai"],
+			"detectors": ["Use Model", "OpenAI", "ChatGPT", "LLM", "Generate Text"],
+			"docs_url": "/docs/security/ai-models",
+			"notes": "Review provider, data classes, device boundary, prompt data, and output handling.",
+			"remediation": "Declare ai.uses_model_action and classify the model provider/device boundary."
+		},
+		{
+			"id": "url-scheme.callback",
+			"name": "URL Scheme Callback",
+			"risk_tier": "sensitive",
+			"permissions": ["url_schemes"],
+			"detectors": ["://x-callback-url", "shortcuts://", "x-callback-url"],
+			"docs_url": "/docs/security/network-and-url-schemes",
+			"notes": "URL schemes can invoke other apps or leak state through callback URLs.",
+			"remediation": "Declare every URL scheme and explain callback data handling."
+		}
+	]
+}

@@ -1,0 +1,21 @@
+name: Shortcut contribution
+description: Propose or update a source-first shortcut package.
+title: "Shortcut: "
+labels: [shortcut]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What should this shortcut do?
+    validations:
+      required: true
+  - type: checkboxes
+    id: permissions
+    attributes:
+      label: Sensitive permissions
+      options:
+        - label: Clipboard access is documented.
+        - label: Network domains are documented.
+        - label: AI/model provider and data boundary are documented.
+        - label: Shell execution is avoided or explicitly justified.

@@ -1,0 +1,40 @@
+id: com.shortcuts.examples.ai-summarize
+name: AI Summarize
+version: 0.1.0
+summary: Summarize clipboard text with an explicitly declared model action.
+category: ai
+status: experimental
+license: MIT
+maintainers:
+  - name: shortcuts maintainers
+compatibility:
+  platforms:
+    ios: ">=18"
+    ipados: ">=18"
+    macos: ">=15"
+  devices:
+    apple_intelligence_required: true
+source:
+  mode: manual
+  entrypoint: src/shortcut.md
+declared_permissions:
+  clipboard:
+    read: true
+    write: true
+  network:
+    allowed: false
+  ai:
+    uses_model_action: true
+    provider: apple-on-device-or-pcc
+    data_egress: maybe
+  shell: false
+  url_schemes: []
+security:
+  tier: sensitive
+  data_leaves_device: maybe
+  review_status: seed-reviewed
+tests:
+  static:
+    enabled: true
+  runtime:
+    enabled: false

@@ -1,0 +1,20 @@
+---
+title: Permission Model
+description: Review tiers and declared sensitive capabilities.
+category: security
+---
+
+# Permission Model
+
+The manifest is a declaration, not a guarantee. The security audit compares declarations against source signals and release artifacts.
+
+| Permission             | Review reason                                                        |
+| ---------------------- | -------------------------------------------------------------------- |
+| `clipboard.read`       | Clipboard data can contain credentials or private content.           |
+| `clipboard.write`      | Mutates user state and should be intentional.                        |
+| `network.allowed`      | May transmit data off-device. Domains must be visible.               |
+| `ai.uses_model_action` | Model provider and data boundary must be classified.                 |
+| `shell`                | Arbitrary command execution requires explicit two-reviewer approval. |
+| `url_schemes`          | App invocation and x-callback-url flows can leak state.              |
+
+Strict mode fails on mismatches, unknown source coverage, and unreviewed high-risk detections.

@@ -1,0 +1,22 @@
+{
+	"id": "audit-assurance-cleanup",
+	"agent": "opencode",
+	"status": "completed",
+	"claimed_at": "2026-05-09T00:00:00Z",
+	"completed_at": "2026-05-09T00:00:00Z",
+	"scope": "Audit the completed build-out, fix pre-commit blockers, clean generated artifacts, and prepare atomic conventional commits.",
+	"paths": [
+		".github/workflows/**",
+		".gitignore",
+		"packages/shortcutkit/src/shortcutkit/adapters.py",
+		"packages/shortcutkit/src/shortcutkit/security.py",
+		"packages/shortcutkit/tests/**",
+		".agent/claims/audit-assurance-cleanup.json",
+		".agent/handoffs/audit-assurance-cleanup.md"
+	],
+	"notes": [
+		"Reviewed with code-reviewer and security-auditor subagents before committing.",
+		"Fixed blocking findings: SwiftPM build artifact ignore, release workflow input injection, network domain allowlist enforcement, and adapter entrypoint root constraints.",
+		"Hardened workflow checkout permissions and security audit artifact upload behavior."
+	]
+}

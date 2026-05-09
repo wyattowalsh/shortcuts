@@ -1,0 +1,12 @@
+id: com.shortcuts.tests.invalid
+name: Invalid Manifest
+version: nope
+summary: Invalid fixture.
+category: test
+status: experimental
+license: MIT
+maintainers:
+  - name: test maintainer
+source:
+  mode: manual
+declared_permissions: {}

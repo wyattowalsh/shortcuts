@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: astral-sh/setup-uv@v5
+      - run: pnpm install --frozen-lockfile
+      - run: uv sync --all-packages
+      - run: uv run ruff check .
+      - run: uv run ty check packages/shortcutkit/src
+      - run: uv run pytest
+      - run: uv run shortcutkit validate shortcuts/examples/clean-clipboard
+      - run: uv run shortcutkit lint shortcuts/examples/clean-clipboard
+      - run: uv run shortcutkit catalog generate --check
+      - run: uv run shortcutkit security audit --strict
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm --filter @shortcuts/docs build

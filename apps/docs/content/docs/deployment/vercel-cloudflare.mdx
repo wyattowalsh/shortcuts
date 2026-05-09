@@ -1,0 +1,17 @@
+---
+title: Vercel And Cloudflare
+description: Deployment assumptions for the docs site.
+category: deployment
+---
+
+# Vercel And Cloudflare
+
+The docs app is a Next/Fumadocs site intended for Vercel hosting with Cloudflare DNS.
+
+Deployment checks:
+
+- `pnpm --filter @shortcuts/docs build`
+- `uv run shortcutkit docs generate --docs-root apps/docs --check`
+- `uv run shortcutkit catalog generate --check`
+
+Cloudflare remains DNS and edge policy infrastructure; generated docs and catalog data stay source-controlled in the repository.

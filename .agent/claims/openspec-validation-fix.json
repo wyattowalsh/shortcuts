@@ -1,0 +1,18 @@
+{
+	"id": "openspec-validation-fix",
+	"agent": "opencode",
+	"status": "completed",
+	"claimed_at": "2026-05-09T00:00:00Z",
+	"completed_at": "2026-05-09T00:00:00Z",
+	"scope": "Fix local OpenSpec spec requirement wording so npx OpenSpec validation passes for this repository.",
+	"paths": [
+		"openspec/specs/**/spec.md",
+		".agent/claims/openspec-validation-fix.json",
+		".agent/handoffs/openspec-validation-fix.md"
+	],
+	"notes": [
+		"The direct local OpenSpec CLI validates the copied shortcuts OpenSpec tree and found non-normative requirement text in existing specs.",
+		"This claim only updates spec wording to include SHALL/MUST; implementation behavior is unchanged.",
+		"Direct local validation now passes: rtk npx -y @fission-ai/openspec@latest validate --all --json --strict."
+	]
+}

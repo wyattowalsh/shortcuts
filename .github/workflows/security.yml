@@ -1,0 +1,30 @@
+name: Security
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --all-packages
+      - id: audit
+        run: uv run shortcutkit security audit --strict --json > security-audit.json
+        continue-on-error: true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-audit
+          path: security-audit.json
+      - name: Fail on audit errors
+        if: steps.audit.outcome == 'failure'
+        run: exit 1

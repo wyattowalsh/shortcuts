@@ -1,0 +1,17 @@
+---
+title: Artifact Provenance
+description: Checksums and source metadata for shortcut releases.
+category: security
+---
+
+# Artifact Provenance
+
+`.shortcut` files are release artifacts, not source. Releases should include metadata with:
+
+- Manifest snapshot.
+- Security audit output.
+- Source commit.
+- Adapter build metadata.
+- SHA-256 checksums for every artifact.
+
+Strict audit reports missing checksum sidecars for packaged artifacts.

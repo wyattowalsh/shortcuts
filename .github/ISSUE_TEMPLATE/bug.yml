@@ -1,0 +1,17 @@
+name: Bug report
+description: Report validation, docs, catalog, or runtime behavior.
+title: "Bug: "
+labels: [bug]
+body:
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Behavior
+      description: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: commands
+    attributes:
+      label: Commands
+      description: Paste the exact command and relevant output.

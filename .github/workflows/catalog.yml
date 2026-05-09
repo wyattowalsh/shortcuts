@@ -1,0 +1,21 @@
+name: Catalog
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --all-packages
+      - run: uv run shortcutkit catalog generate --check
+      - run: uv run shortcutkit docs generate --docs-root apps/docs --check

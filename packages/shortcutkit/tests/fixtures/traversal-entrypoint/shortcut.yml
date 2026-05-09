@@ -1,0 +1,37 @@
+id: com.shortcuts.tests.traversal-entrypoint
+name: Traversal Entrypoint
+version: 0.1.0
+summary: Fixture that attempts to point an adapter outside the package root.
+category: testing
+status: experimental
+license: MIT
+maintainers:
+  - name: test maintainer
+compatibility:
+  platforms:
+    macos: ">=15"
+  devices:
+    apple_intelligence_required: false
+source:
+  mode: artifact
+  entrypoint: ../outside.shortcut
+declared_permissions:
+  clipboard:
+    read: false
+    write: false
+  network:
+    allowed: false
+    domains: []
+  ai:
+    uses_model_action: false
+  shell: false
+  url_schemes: []
+security:
+  tier: low
+  data_leaves_device: false
+  review_status: fixture
+tests:
+  static:
+    enabled: true
+  runtime:
+    enabled: false

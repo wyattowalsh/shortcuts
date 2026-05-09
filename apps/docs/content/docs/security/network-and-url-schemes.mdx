@@ -1,0 +1,17 @@
+---
+title: Network And URL Schemes
+description: Review network destinations and app callback flows.
+category: security
+---
+
+# Network And URL Schemes
+
+Network and URL scheme review focuses on where data goes and what other apps can be invoked.
+
+## Network
+
+Declare `network.allowed: true` and list domains whenever source includes HTTP requests. Catalog output includes detected domains so reviewers can spot unexpected egress.
+
+## URL Schemes
+
+Declare every non-HTTP scheme in `declared_permissions.url_schemes`. `x-callback-url` patterns require extra scrutiny because callback URLs can carry state across apps.

@@ -1,0 +1,17 @@
+---
+title: Runtime Testing
+description: Optional macOS testing around Apple's shortcuts CLI.
+category: integrations
+---
+
+# Runtime Testing
+
+Runtime tests are optional and macOS-only. Linux contributors are not blocked by default.
+
+`shortcutkit test` separates three steps:
+
+1. Manifest validation.
+2. Runtime command resolution.
+3. Optional execution with `--run`.
+
+Shortcut packages should keep prompt-heavy flows disabled unless they can run unattended.

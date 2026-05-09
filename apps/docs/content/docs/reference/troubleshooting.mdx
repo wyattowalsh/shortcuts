@@ -1,0 +1,23 @@
+---
+title: Troubleshooting
+description: Common validation, docs, and runtime issues.
+category: reference
+---
+
+# Troubleshooting
+
+## Catalog Drift
+
+Run `uv run shortcutkit catalog generate` and commit the updated catalog.
+
+## Generated Docs Drift
+
+Run `uv run shortcutkit docs generate --docs-root apps/docs`.
+
+## Missing External Adapter
+
+Run `uv run shortcutkit adapter check --json` and install the required external compiler if you intend to use that source mode.
+
+## Runtime Tests Skipped
+
+Runtime tests are skipped unless they are enabled in `shortcut.yml`, executed on macOS, and run with `--run`.

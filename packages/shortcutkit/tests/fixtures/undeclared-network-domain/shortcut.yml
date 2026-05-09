@@ -1,0 +1,38 @@
+id: com.shortcuts.tests.undeclared-network-domain
+name: Undeclared Network Domain
+version: 0.1.0
+summary: Fixture that declares one network domain but uses another.
+category: testing
+status: experimental
+license: MIT
+maintainers:
+  - name: test maintainer
+compatibility:
+  platforms:
+    macos: ">=15"
+  devices:
+    apple_intelligence_required: false
+source:
+  mode: manual
+  entrypoint: src/shortcut.md
+declared_permissions:
+  clipboard:
+    read: false
+    write: false
+  network:
+    allowed: true
+    domains:
+      - example.com
+  ai:
+    uses_model_action: false
+  shell: false
+  url_schemes: []
+security:
+  tier: sensitive
+  data_leaves_device: true
+  review_status: fixture
+tests:
+  static:
+    enabled: true
+  runtime:
+    enabled: false

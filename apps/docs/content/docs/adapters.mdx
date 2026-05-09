@@ -1,0 +1,18 @@
+---
+title: Source Adapters
+description: Capability-aware shortcut build modes.
+category: integrations
+---
+
+# Source Adapters
+
+Adapters expose source modes without pretending every mode can compile everywhere.
+
+| Adapter    | Build                                            | Boundary                       |
+| ---------- | ------------------------------------------------ | ------------------------------ |
+| `manual`   | Documents manual build instructions.             | First-class source mode.       |
+| `artifact` | Uses existing artifacts and provenance metadata. | No compilation.                |
+| `cherri`   | External process when installed.                 | Compiler code is not vendored. |
+| `jelly`    | External process when installed.                 | Compiler code is not vendored. |
+
+Run `uv run shortcutkit adapter check --json` for the local capability matrix.

@@ -1,0 +1,35 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"title": "Shortcut Catalog",
+	"type": "object",
+	"required": ["version", "shortcuts"],
+	"properties": {
+		"version": { "type": "integer" },
+		"shortcuts": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"required": [
+					"id",
+					"name",
+					"version",
+					"summary",
+					"path",
+					"permission_badges"
+				],
+				"properties": {
+					"id": { "type": "string" },
+					"name": { "type": "string" },
+					"version": { "type": "string" },
+					"summary": { "type": "string" },
+					"path": { "type": "string" },
+					"permission_badges": {
+						"type": "array",
+						"items": { "type": "string" }
+					}
+				},
+				"additionalProperties": true
+			}
+		}
+	}
+}

@@ -1,0 +1,48 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"title": "ActionDB",
+	"type": "object",
+	"required": ["version", "actions"],
+	"properties": {
+		"version": {
+			"type": "string"
+		},
+		"actions": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"required": ["id", "name", "risk_tier", "permissions"],
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"risk_tier": {
+						"enum": ["low", "interactive", "sensitive", "high", "critical"]
+					},
+					"permissions": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						}
+					},
+					"detectors": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						}
+					},
+					"remediation": {
+						"type": "string"
+					},
+					"docs_url": {
+						"type": "string"
+					}
+				},
+				"additionalProperties": true
+			}
+		}
+	}
+}

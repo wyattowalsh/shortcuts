@@ -1,0 +1,21 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"title": "Shortcut Release Metadata",
+	"type": "object",
+	"required": ["package_id", "version", "manifest", "audit", "artifacts"],
+	"properties": {
+		"package_id": { "type": "string" },
+		"version": { "type": "string" },
+		"source_commit": { "type": ["string", "null"] },
+		"manifest": { "type": "object" },
+		"audit": { "type": "object" },
+		"artifacts": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"required": ["path", "sha256", "bytes"],
+				"additionalProperties": true
+			}
+		}
+	}
+}

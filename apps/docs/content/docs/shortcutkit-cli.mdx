@@ -1,0 +1,23 @@
+---
+title: shortcutkit CLI
+description: Validate, lint, audit, build, test, and release shortcut packages.
+category: reference
+---
+
+# shortcutkit CLI
+
+`shortcutkit` is the Python CLI for source-first shortcut packages.
+
+| Command                                      | Purpose                                                          |
+| -------------------------------------------- | ---------------------------------------------------------------- |
+| `shortcutkit validate <path>`                | Validate `shortcut.yml` with JSON Schema and Pydantic.           |
+| `shortcutkit lint <path>`                    | Check README, artifact hygiene, and package structure.           |
+| `shortcutkit catalog generate --check`       | Detect generated catalog drift.                                  |
+| `shortcutkit security audit --strict [path]` | Run fail-closed security review for one package or all examples. |
+| `shortcutkit adapter check --json`           | Show adapter capability matrix.                                  |
+| `shortcutkit build <path> --json`            | Produce adapter build metadata.                                  |
+| `shortcutkit test <path> --json`             | Resolve optional macOS runtime testing.                          |
+| `shortcutkit release metadata <path>`        | Emit release metadata with audit and checksums.                  |
+| `shortcutkit release notes <path>`           | Render install notes and risk summary.                           |
+
+Use `uv run shortcutkit ...` inside the workspace so the uv-managed environment and local package are used.

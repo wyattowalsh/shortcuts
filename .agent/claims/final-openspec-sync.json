@@ -1,0 +1,18 @@
+{
+	"id": "final-openspec-sync",
+	"agent": "opencode",
+	"status": "completed",
+	"claimed_at": "2026-05-09T00:00:00Z",
+	"completed_at": "2026-05-09T00:00:00Z",
+	"scope": "Sync OpenSpec task artifacts and final verification handoff after the full repo build-out.",
+	"paths": [
+		"openspec/changes/**/tasks.md",
+		".agent/claims/final-openspec-sync.json",
+		".agent/handoffs/final-openspec-sync.md"
+	],
+	"notes": [
+		"This claim only updates metadata and verification evidence; implementation files are not modified.",
+		"All OpenSpec change task checkboxes are now checked for the shipped beta slice.",
+		"Validation reruns passed: no unchecked OpenSpec tasks, uv run wagents openspec validate, and rtk git diff --check."
+	]
+}

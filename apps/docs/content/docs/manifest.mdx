@@ -1,0 +1,30 @@
+---
+title: Manifest Reference
+description: Fields required by shortcut.yml packages.
+category: reference
+---
+
+# Manifest Reference
+
+Every shortcut package must include `shortcut.yml`. The manifest is the review contract for validation, catalog generation, security audit, runtime testing, and release metadata.
+
+## Required Identity
+
+| Field         | Purpose                                                |
+| ------------- | ------------------------------------------------------ |
+| `id`          | Stable reverse-DNS shortcut ID.                        |
+| `name`        | Human-readable name.                                   |
+| `version`     | SemVer package version.                                |
+| `summary`     | One-sentence catalog summary.                          |
+| `category`    | Catalog grouping.                                      |
+| `status`      | `experimental`, `stable`, `deprecated`, or `archived`. |
+| `license`     | Source license.                                        |
+| `maintainers` | Review and ownership contacts.                         |
+
+## Source Modes
+
+`source.mode` can be `manual`, `artifact`, `cherri`, or `jelly`. External compiler modes are wrappers only; compiler code is not vendored into core packages.
+
+## Sensitive Permissions
+
+Declare clipboard, network, AI/model, shell, and URL scheme behavior in `declared_permissions`. Strict audit fails when source signals exceed the declaration.

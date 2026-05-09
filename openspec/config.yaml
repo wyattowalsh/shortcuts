@@ -1,0 +1,12 @@
+version: 1
+project: shortcuts
+schema: spec-driven
+workflows:
+  - propose
+  - apply
+  - archive
+validation:
+  strict: true
+artifacts:
+  specs_dir: openspec/specs
+  changes_dir: openspec/changes

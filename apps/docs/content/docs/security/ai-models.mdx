@@ -1,0 +1,19 @@
+---
+title: AI Model Review
+description: How model actions are declared and reviewed.
+category: security
+---
+
+# AI Model Review
+
+AI/model actions must distinguish on-device execution, Apple Private Cloud Compute, extension model providers, ChatGPT, and unknown providers where possible.
+
+Manifest authors should document:
+
+- Provider or device boundary.
+- Prompt data classes.
+- Whether data may leave the device.
+- Output handling and downstream actions.
+- User-visible consent or review steps.
+
+The audit detects common model-action strings such as `Use Model`, `OpenAI`, `ChatGPT`, and `Generate Text`.

@@ -1,0 +1,11 @@
+@import "tailwindcss";
+@import "fumadocs-ui/css/shadcn.css";
+@import "fumadocs-ui/css/preset.css";
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+}
+
+body {
+  min-height: 100vh;
+}

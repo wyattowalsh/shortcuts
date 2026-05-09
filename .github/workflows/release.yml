@@ -1,0 +1,55 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      package_path:
+        description: Shortcut package path
+        required: true
+        default: shortcuts/examples/clean-clipboard
+
+permissions:
+  contents: read
+
+jobs:
+  metadata:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --all-packages
+      - name: Validate package path
+        run: |
+          case "$PACKAGE_PATH" in
+            /*|*..*|*//*|*~*)
+              printf 'package_path must be a normalized relative path\n' >&2
+              exit 1
+              ;;
+          esac
+          case "$PACKAGE_PATH" in
+            shortcuts/examples/*) ;;
+            *)
+              printf 'package_path must be under shortcuts/examples/\n' >&2
+              exit 1
+              ;;
+          esac
+          if [ ! -f "$PACKAGE_PATH/shortcut.yml" ]; then
+            printf 'package_path must contain shortcut.yml\n' >&2
+            exit 1
+          fi
+        env:
+          PACKAGE_PATH: ${{ inputs.package_path }}
+      - run: uv run shortcutkit release metadata "$PACKAGE_PATH" > release-metadata.json
+        env:
+          PACKAGE_PATH: ${{ inputs.package_path }}
+      - run: uv run shortcutkit release notes "$PACKAGE_PATH" --output release-notes.md
+        env:
+          PACKAGE_PATH: ${{ inputs.package_path }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-metadata
+          path: |
+            release-metadata.json
+            release-notes.md

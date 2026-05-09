@@ -1,0 +1,57 @@
+{
+  "shortcuts": [
+    {
+      "audit_passed": true,
+      "category": "ai",
+      "domains": [],
+      "id": "com.shortcuts.examples.ai-summarize",
+      "name": "AI Summarize",
+      "path": "shortcuts/examples/ai-summarize",
+      "permission_badges": [
+        "ai",
+        "clipboard"
+      ],
+      "review_required": false,
+      "security_tier": "sensitive",
+      "status": "experimental",
+      "summary": "Summarize clipboard text with an explicitly declared model action.",
+      "version": "0.1.0"
+    },
+    {
+      "audit_passed": true,
+      "category": "productivity",
+      "domains": [],
+      "id": "com.shortcuts.examples.clean-clipboard",
+      "name": "Clean Clipboard",
+      "path": "shortcuts/examples/clean-clipboard",
+      "permission_badges": [
+        "clipboard"
+      ],
+      "review_required": false,
+      "security_tier": "interactive",
+      "status": "experimental",
+      "summary": "Normalize clipboard text by trimming whitespace and removing common tracking parameters.",
+      "version": "0.1.0"
+    },
+    {
+      "audit_passed": true,
+      "category": "productivity",
+      "domains": [
+        "example.com"
+      ],
+      "id": "com.shortcuts.examples.network-note",
+      "name": "Network Note",
+      "path": "shortcuts/examples/network-note",
+      "permission_badges": [
+        "clipboard",
+        "network"
+      ],
+      "review_required": false,
+      "security_tier": "sensitive",
+      "status": "experimental",
+      "summary": "Fetch a text note from an approved example endpoint and copy it to the clipboard.",
+      "version": "0.1.0"
+    }
+  ],
+  "version": 1
+}
