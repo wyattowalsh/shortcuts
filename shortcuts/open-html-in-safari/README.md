@@ -6,7 +6,7 @@ The package icon is `icon.png`. It is used by the catalog, generated docs, and r
 
 ## Supported Input Types
 
-The shortcut appears in the share sheet for files and handles three input types:
+The shortcut appears in the share sheet for file, rich text, text, and URL handoffs because iOS Files can present an HTML document through more than one content representation. It handles three primary input types:
 
 1. **Single HTML file** — The shortcut shows a blocking pre-read preflight confirmation, resolves the shared file to renderable HTML text, base64-encodes that render text, and opens it in Safari as `data:text/html;base64,...`.
 2. **ZIP archive** — The shortcut extracts the archive, finds `index.html` or another HTML file, attempts a best-effort local bundle, and opens the generated bundled HTML in Safari.
@@ -37,6 +37,8 @@ This inlines local CSS, JavaScript, images, fonts, manifests, CSS `url()` depend
 For single HTML files, the shortcut uses `getText(ShortcutInput)` before Base64 encoding so iOS resolves the shared Files item into renderable HTML content before Safari opens. This is optimized for normal UTF-8 HTML documents, which covers the bundled examples and most hand-authored single-file pages. For unusual legacy encodings or very large files, use the deterministic CLI bundler first.
 
 Before it tries to read HTML text, the shortcut shows a blocking preflight confirmation with the input name, detected mode, chosen entry HTML file, local bundling status, and scanned local file count. After the read succeeds, it shows render text length and the expected `data:text/html;base64,...` target. This makes silent iOS share-sheet failures easier to diagnose: if you see the confirmation but not the ready screen, the file-read action is the failing step.
+
+The first action is an even earlier launch canary: `Open HTML launched from the share sheet.` If that does not appear after tapping the share-sheet button, iOS did not run this installed shortcut artifact.
 
 ## here.now Share URL Deployment
 

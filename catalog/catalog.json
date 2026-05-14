@@ -102,6 +102,10 @@
             "notes": "Scans recursively, chooses index.html or another HTML file, and rewrites supported same-name asset references."
           }
         ],
+        "launch_diagnostics": [
+          "launch_canary_before_input_metadata",
+          "pre_read_confirmation_after_input_metadata"
+        ],
         "local_bundle": {
           "deterministic_command": "uv run shortcutkit html bundle path/to/index.html --output path/to/index.bundled.html --json",
           "limitations": [
@@ -156,6 +160,12 @@
             "provider": "here-now",
             "support": "supported"
           }
+        ],
+        "share_sheet_inputs": [
+          "file",
+          "richtext",
+          "text",
+          "url"
         ],
         "size_gates": {
           "green_raw_bytes": 512000,

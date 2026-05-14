@@ -7,11 +7,13 @@
 #define name Open HTML
 #define glyph magicWand
 #define color purple
-#define inputs file
+#define inputs file, richtext, text, url
 #define from sharesheet
 #define noinput stopwith "Share a local .html file, ZIP archive, or folder to open it in Safari."
 #define mac false
 #define version 18
+
+confirm("Open HTML launched from the share sheet.\n\nTap OK to inspect the shared input. If you see this but no preflight after it, the failure is in input metadata detection.", "Open HTML")
 
 // Detect input type using file extension and filename.
 @ext = getFileDetail(ShortcutInput, "File Extension")

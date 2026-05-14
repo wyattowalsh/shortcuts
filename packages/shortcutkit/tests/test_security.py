@@ -44,6 +44,8 @@ def test_open_html_uses_safari_runtime_with_file_backups() -> None:
         root / "shortcuts" / "open-html-in-safari" / "src" / "open-html-in-safari.cherri"
     ).read_text(encoding="utf-8")
 
+    assert "#define inputs file, richtext, text, url" in source
+    assert "Open HTML launched from the share sheet." in source
     assert "getFileDetail(ShortcutInput" in source
     assert "extractArchive(ShortcutInput)" in source
     assert "getFolderContents(ShortcutInput, true)" in source

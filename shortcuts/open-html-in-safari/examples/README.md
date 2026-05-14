@@ -21,11 +21,12 @@ failure isolates the direct HTML render path before testing folders or ZIPs.
 1. Install or import the rebuilt `Open HTML.shortcut` on the iPhone.
 2. Put the example files in iCloud Drive, AirDrop them, or otherwise make them visible in the iOS Files app.
 3. In Files, long-press the fixture, choose Share, then choose `Open HTML`.
-4. Confirm the pre-read confirmation appears and the detected mode matches the fixture type.
-5. Tap through to Safari and confirm it opens a `data:text/html;base64,...` page.
-6. Return to Shortcuts after the Safari check.
-7. Confirm the here.now dry-run and publish commands are shown.
-8. Use Quick Look or Open In only if Safari rendered poorly.
+4. Confirm the launch canary appears: `Open HTML launched from the share sheet.`
+5. Confirm the pre-read confirmation appears and the detected mode matches the fixture type.
+6. Tap through to Safari and confirm it opens a `data:text/html;base64,...` page.
+7. Return to Shortcuts after the Safari check.
+8. Confirm the here.now dry-run and publish commands are shown.
+9. Use Quick Look or Open In only if Safari rendered poorly.
 
 ## Fixture Notes
 

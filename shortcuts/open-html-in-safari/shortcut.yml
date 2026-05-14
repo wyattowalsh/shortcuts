@@ -39,6 +39,14 @@ declared_permissions:
   url_schemes:
     - data
 html_runtime:
+  share_sheet_inputs:
+    - file
+    - richtext
+    - text
+    - url
+  launch_diagnostics:
+    - launch_canary_before_input_metadata
+    - pre_read_confirmation_after_input_metadata
   input_matrix:
     - input: single-html-file
       local_render: resolved-text-data-url
@@ -132,6 +140,7 @@ tests:
     - Put `examples/single-file/01-inline-counter.html` in iCloud Drive, AirDrop it, or otherwise make it visible in the iOS Files app.
     - In Files, long-press `01-inline-counter.html`, choose Share, then choose Open HTML.
     - Confirm Open HTML shows a blocking pre-read confirmation before it attempts to read HTML text, including input name, detected mode, entry HTML, local bundling status, and scanned local files.
+    - If tapping the share-sheet button appears to do nothing, confirm whether the first launch canary appears; if it does not, iOS did not run this installed shortcut artifact.
     - Confirm the ready screen appears after the read succeeds, including render text characters and the data URL target scheme.
     - Build a constrained local bundle with `uv run shortcutkit html bundle shortcuts/open-html-in-safari/examples/directories/flat-app/index.html --output /tmp/flat-app.bundled.html --json`.
     - Share `examples/single-file/01-inline-counter.html` or `/tmp/flat-app.bundled.html` into Open HTML and verify it shows the starting progress notification and pre-read confirmation before opening Safari.
