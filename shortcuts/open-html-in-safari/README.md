@@ -8,7 +8,7 @@ The package icon is `icon.png`. It is used by the catalog, generated docs, and r
 
 The shortcut appears in the share sheet for file, rich text, text, and URL handoffs because iOS Files can present an HTML document through more than one content representation. It handles three primary input types:
 
-1. **Single HTML file** — The shortcut shows a blocking pre-read preflight confirmation, resolves the shared file to renderable HTML text, base64-encodes that render text, and opens it in Safari as `data:text/html;base64,...`.
+1. **Single HTML file** — The shortcut asks you to choose `Single HTML file`, resolves the shared input as renderable HTML text without file metadata lookup, base64-encodes that render text, and opens it in Safari as `data:text/html;base64,...`.
 2. **ZIP archive** — The shortcut extracts the archive, finds `index.html` or another HTML file, attempts a best-effort local bundle, and opens the generated bundled HTML in Safari.
 3. **Folder** — The shortcut scans the folder recursively, finds `index.html` or another HTML file, attempts a best-effort local bundle, and opens the generated bundled HTML in Safari.
 
@@ -20,7 +20,7 @@ For ZIP and folder inputs, Open HTML now attempts a constrained on-device bundle
 
 | Input | Local render | Share URL offer |
 | --- | --- | --- |
-| Single `.html` file | Resolved-text `data:` URL with pre-read confirmation | Shown after Safari returns |
+| Single `.html` file | User-selected resolved-text `data:` URL path | Shown after Safari returns |
 | ZIP archive | Extract, choose HTML, best-effort asset rewrite | Shown after Safari returns |
 | Folder | Recursive scan, choose HTML, best-effort asset rewrite | Shown after Safari returns |
 
@@ -36,9 +36,9 @@ This inlines local CSS, JavaScript, images, fonts, manifests, CSS `url()` depend
 
 For single HTML files, the shortcut uses `getText(ShortcutInput)` before Base64 encoding so iOS resolves the shared Files item into renderable HTML content before Safari opens. This is optimized for normal UTF-8 HTML documents, which covers the bundled examples and most hand-authored single-file pages. For unusual legacy encodings or very large files, use the deterministic CLI bundler first.
 
-Before it tries to read HTML text, the shortcut shows a blocking preflight confirmation with the input name, detected mode, chosen entry HTML file, local bundling status, and scanned local file count. After the read succeeds, it shows render text length and the expected `data:text/html;base64,...` target. This makes silent iOS share-sheet failures easier to diagnose: if you see the confirmation but not the ready screen, the file-read action is the failing step.
+After launch, the shortcut shows the Shortcuts-reported input type and asks what you shared: `Single HTML file`, `ZIP archive`, or `Folder`. Choosing `Single HTML file` avoids file metadata lookup entirely and reads the shared input as text. ZIP and folder choices still use file actions because they need archive extraction or folder traversal. After the read succeeds, the shortcut shows render text length and the expected `data:text/html;base64,...` target.
 
-The first action is an even earlier launch canary: `Open HTML launched from the share sheet.` If that does not appear after tapping the share-sheet button, iOS did not run this installed shortcut artifact.
+The first action is a launch canary: `Open HTML launched from the share sheet.` If that does not appear after tapping the share-sheet button, iOS did not run this installed shortcut artifact.
 
 ## here.now Share URL Deployment
 
@@ -74,11 +74,13 @@ Start with `examples/single-file/01-inline-counter.html`, then test
 1. Install or import the rebuilt `Open HTML.shortcut` on the iPhone.
 2. Put `examples/single-file/01-inline-counter.html` in iCloud Drive, AirDrop it, or otherwise make it visible in the iOS Files app.
 3. In Files, long-press the HTML file, choose Share, then choose `Open HTML`.
-4. Confirm Open HTML shows the pre-read confirmation before it tries to read the file.
-5. Confirm Safari opens a `data:text/html;base64,...` page.
-6. Confirm the counter page renders and its button increments.
-7. Return to Shortcuts and confirm the here.now dry-run and publish commands are shown.
-8. Repeat with `examples/directories/flat-app/`, `examples/zips/flat-app.zip`, and the gallery fixtures.
+4. Confirm the launch canary appears, then tap OK.
+5. In the input-kind picker, choose `Single HTML file`.
+6. Confirm the preflight screen reports `Detected mode: single-file`.
+7. Confirm Safari opens a `data:text/html;base64,...` page.
+8. Confirm the counter page renders and its button increments.
+9. Return to Shortcuts and confirm the here.now dry-run and publish commands are shown.
+10. Repeat with `examples/directories/flat-app/`, `examples/zips/flat-app.zip`, and the gallery fixtures, choosing the matching input kind each time.
 
 ## Quick Look and Open In Backups
 

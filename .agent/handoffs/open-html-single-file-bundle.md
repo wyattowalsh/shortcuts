@@ -10,17 +10,18 @@
 
 Fixed the on-device single-file failure path where sharing `examples/single-file/01-inline-counter.html` completed with a checkmark but did not visibly open Safari.
 
-The shortcut no longer Base64-encodes the shared file object directly for single HTML inputs. It now accepts file, rich text, text, and URL share-sheet representations, shows a blocking launch canary before any `ShortcutInput` metadata access, shows a blocking pre-read confirmation before attempting to read HTML text, resolves every supported input type to local render HTML text, shows ready metadata after the read succeeds, Base64-encodes the render text, and opens Safari with `data:text/html;base64,...`.
+The shortcut no longer Base64-encodes the shared file object directly for single HTML inputs. It now accepts file, rich text, text, and URL share-sheet representations, shows a blocking launch canary, asks the user to choose `Single HTML file`, `ZIP archive`, or `Folder`, avoids file metadata lookup entirely for the single-file path, resolves the selected input to local render HTML text, shows ready metadata after the read succeeds, Base64-encodes the render text, and opens Safari with `data:text/html;base64,...`.
 
 ## Changes
 
 - `src/open-html-in-safari.cherri`
   - Detects `.html` / `.htm` from lowercase extension and filename before folder fallback.
   - Widens share-sheet input classes to `file, richtext, text, url` because iOS Files can expose HTML through richer representations.
-  - Adds a first-action launch canary before any input metadata lookup.
+  - Adds a first-action launch canary and input-kind picker before any file metadata lookup.
+  - Avoids `getFileDetail(ShortcutInput, ...)` for the single-file path so rich-text/text representations from iOS Files do not die before preflight.
   - Uses `getText(@targetFile)` for single files, ZIP-selected HTML, and folder-selected HTML.
   - Removes the direct `base64Encode(@targetFile)` single-file path.
-  - Adds a pre-read `confirm(...)` prompt with input name, detected mode, entry HTML, local bundling status, and scanned file count.
+  - Adds a pre-read `confirm(...)` prompt with input kind, detected mode, entry HTML, local bundling status, and scanned file count.
   - Keeps the ready `show(...)` screen after HTML text is resolved, including render text character count and Safari target scheme.
   - Keeps the here.now command display after returning from Safari.
   - Keeps Quick Look and Open In backups behind confirmations.
@@ -56,10 +57,11 @@ Install or import the rebuilt `Open HTML.shortcut` on the iPhone, then share `ex
 Expected result:
 
 1. The launch canary appears immediately after tapping Open HTML from the share sheet.
-2. The blocking pre-read confirmation appears and reports `single-file`.
-3. The ready screen appears after the file is read.
-4. Safari opens a `data:text/html;base64,...` page.
-5. The counter page renders and the button increments.
-6. Returning to Shortcuts shows the here.now commands and backup prompts.
+2. Choose `Single HTML file` from the input-kind picker.
+3. The blocking pre-read confirmation appears and reports `single-file`.
+4. The ready screen appears after the file is read.
+5. Safari opens a `data:text/html;base64,...` page.
+6. The counter page renders and the button increments.
+7. Returning to Shortcuts shows the here.now commands and backup prompts.
 
 Then repeat with `examples/directories/flat-app/` and `examples/zips/flat-app.zip`.

@@ -46,15 +46,18 @@ def test_open_html_uses_safari_runtime_with_file_backups() -> None:
 
     assert "#define inputs file, richtext, text, url" in source
     assert "Open HTML launched from the share sheet." in source
-    assert "getFileDetail(ShortcutInput" in source
+    assert "chooseFromList(@inputKindOptions" in source
+    assert "typeOf(ShortcutInput)" in source
+    assert "getFileDetail(ShortcutInput" not in source
     assert "extractArchive(ShortcutInput)" in source
     assert "getFolderContents(ShortcutInput, true)" in source
     assert "Attempting a local bundled render before Safari opens." in source
-    assert "Reading single HTML file for Safari render..." in source
+    assert "Reading single HTML input for Safari render..." in source
     assert "Open HTML preflight" in source
     assert "Tap OK to read the HTML" in source
     assert "Ready to open in Safari." in source
     assert "getText(@targetFile)" in source
+    assert "getText(ShortcutInput)" in source
     assert "replaceText(@assetName.text, @assetUrl, @renderHtml, false, false)" in source
     assert "base64Encode(@renderHtml)" in source
     assert "base64Encode(@targetFile)" not in source
@@ -63,7 +66,7 @@ def test_open_html_uses_safari_runtime_with_file_backups() -> None:
     assert "uv run shortcutkit html publish path/to/site --provider here-now --run --json" in source
     assert "quicklook(ShortcutInput)" in source
     assert "openFile(ShortcutInput, true)" in source
-    assert "Single file resolved to HTML text" in source
+    assert "Single HTML input rendered directly from share-sheet text" in source
     assert "No HTML file found in ZIP." in source
     assert "No HTML file found in folder." in source
     assert source.count('"Open HTML Backup"') == 2

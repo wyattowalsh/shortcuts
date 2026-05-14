@@ -8,13 +8,13 @@ failure isolates the direct HTML render path before testing folders or ZIPs.
 
 | Input | File or folder to share | Expected shortcut screen | Expected Safari result | After returning to Shortcuts |
 | --- | --- | --- | --- | --- |
-| Single file | `single-file/01-inline-counter.html` | Blocking preflight confirmation shows `single-file`, the input name, and zero scanned local files before HTML is read | Counter page renders and the button increments | here.now dry-run and publish commands appear, then Quick Look/Open In backups are offered |
-| Single file | `single-file/02-data-card.html` | Blocking preflight confirmation shows `single-file` and `02-data-card.html` before HTML is read | Inline CSS and SVG render as a compact data card | Same here.now and backup prompts |
-| Single file | `single-file/03-form-state.html` | Blocking preflight confirmation shows `single-file` and `03-form-state.html` before HTML is read | Form text updates without external assets | Same here.now and backup prompts |
-| Directory | `directories/flat-app/` | Blocking preflight confirmation shows `folder`, `index.html`, and scanned local files | CSS, JavaScript, manifest, and SVG references render from rewritten `data:` URLs when supported | Same here.now and backup prompts |
-| Directory | `directories/mini-gallery/` | Blocking preflight confirmation shows `folder`, `index.html`, and scanned local files | Gallery styling, script, and SVG images render when supported | Same here.now and backup prompts |
-| ZIP archive | `zips/flat-app.zip` | Blocking preflight confirmation shows `zip`, `index.html`, and scanned extracted files | ZIP is extracted, bundled locally, and opened in Safari | Same here.now and backup prompts |
-| ZIP archive | `zips/mini-gallery.zip` | Blocking preflight confirmation shows `zip`, `index.html`, and scanned extracted files | ZIP gallery renders through the local bundle attempt | Same here.now and backup prompts |
+| Single file | `single-file/01-inline-counter.html` | Choose `Single HTML file`; preflight shows `single-file` and zero scanned local files | Counter page renders and the button increments | here.now dry-run and publish commands appear, then Quick Look/Open In backups are offered |
+| Single file | `single-file/02-data-card.html` | Choose `Single HTML file`; preflight shows `single-file` | Inline CSS and SVG render as a compact data card | Same here.now and backup prompts |
+| Single file | `single-file/03-form-state.html` | Choose `Single HTML file`; preflight shows `single-file` | Form text updates without external assets | Same here.now and backup prompts |
+| Directory | `directories/flat-app/` | Choose `Folder`; preflight shows `folder`, `index.html`, and scanned local files | CSS, JavaScript, manifest, and SVG references render from rewritten `data:` URLs when supported | Same here.now and backup prompts |
+| Directory | `directories/mini-gallery/` | Choose `Folder`; preflight shows `folder`, `index.html`, and scanned local files | Gallery styling, script, and SVG images render when supported | Same here.now and backup prompts |
+| ZIP archive | `zips/flat-app.zip` | Choose `ZIP archive`; preflight shows `zip`, `index.html`, and scanned extracted files | ZIP is extracted, bundled locally, and opened in Safari | Same here.now and backup prompts |
+| ZIP archive | `zips/mini-gallery.zip` | Choose `ZIP archive`; preflight shows `zip`, `index.html`, and scanned extracted files | ZIP gallery renders through the local bundle attempt | Same here.now and backup prompts |
 
 ## Phone Steps
 
@@ -22,11 +22,12 @@ failure isolates the direct HTML render path before testing folders or ZIPs.
 2. Put the example files in iCloud Drive, AirDrop them, or otherwise make them visible in the iOS Files app.
 3. In Files, long-press the fixture, choose Share, then choose `Open HTML`.
 4. Confirm the launch canary appears: `Open HTML launched from the share sheet.`
-5. Confirm the pre-read confirmation appears and the detected mode matches the fixture type.
-6. Tap through to Safari and confirm it opens a `data:text/html;base64,...` page.
-7. Return to Shortcuts after the Safari check.
-8. Confirm the here.now dry-run and publish commands are shown.
-9. Use Quick Look or Open In only if Safari rendered poorly.
+5. Choose the matching input kind: `Single HTML file`, `ZIP archive`, or `Folder`.
+6. Confirm the preflight screen appears and the detected mode matches the fixture type.
+7. Tap through to Safari and confirm it opens a `data:text/html;base64,...` page.
+8. Return to Shortcuts after the Safari check.
+9. Confirm the here.now dry-run and publish commands are shown.
+10. Use Quick Look or Open In only if Safari rendered poorly.
 
 ## Fixture Notes
 

@@ -67,7 +67,7 @@ Try a local bundled Safari render, then offer a here.now share URL path.
 
 | Input | Local render | Share URL offer | Notes |
 | --- | --- | --- | --- |
-| `single-html-file` | `resolved-text-data-url` | `after-safari-return` | Shows a blocking pre-read confirmation, resolves the shared HTML file to renderable text, base64-encodes that render text, and opens Safari. |
+| `single-html-file` | `resolved-text-data-url` | `after-safari-return` | User chooses Single HTML file, then the shortcut resolves the shared input to renderable text without file metadata lookup, base64-encodes that render text, and opens Safari. |
 | `zip-archive` | `best-effort-generated-bundle` | `after-safari-return` | Extracts the archive, chooses index.html or another HTML file, and rewrites supported same-name asset references. |
 | `folder` | `best-effort-generated-bundle` | `after-safari-return` | Scans recursively, chooses index.html or another HTML file, and rewrites supported same-name asset references. |
 

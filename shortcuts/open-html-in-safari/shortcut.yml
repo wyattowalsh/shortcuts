@@ -45,13 +45,14 @@ html_runtime:
     - text
     - url
   launch_diagnostics:
-    - launch_canary_before_input_metadata
-    - pre_read_confirmation_after_input_metadata
+    - launch_canary_before_input_handling
+    - user_selected_input_kind
+    - pre_read_confirmation_after_input_kind_selection
   input_matrix:
     - input: single-html-file
       local_render: resolved-text-data-url
       hosted_offer: after-safari-return
-      notes: Shows a blocking pre-read confirmation, resolves the shared HTML file to renderable text, base64-encodes that render text, and opens Safari.
+      notes: User chooses Single HTML file, then the shortcut resolves the shared input to renderable text without file metadata lookup, base64-encodes that render text, and opens Safari.
     - input: zip-archive
       local_render: best-effort-generated-bundle
       hosted_offer: after-safari-return
@@ -141,6 +142,7 @@ tests:
     - In Files, long-press `01-inline-counter.html`, choose Share, then choose Open HTML.
     - Confirm Open HTML shows a blocking pre-read confirmation before it attempts to read HTML text, including input name, detected mode, entry HTML, local bundling status, and scanned local files.
     - If tapping the share-sheet button appears to do nothing, confirm whether the first launch canary appears; if it does not, iOS did not run this installed shortcut artifact.
+    - Choose `Single HTML file` from the input-kind picker.
     - Confirm the ready screen appears after the read succeeds, including render text characters and the data URL target scheme.
     - Build a constrained local bundle with `uv run shortcutkit html bundle shortcuts/open-html-in-safari/examples/directories/flat-app/index.html --output /tmp/flat-app.bundled.html --json`.
     - Share `examples/single-file/01-inline-counter.html` or `/tmp/flat-app.bundled.html` into Open HTML and verify it shows the starting progress notification and pre-read confirmation before opening Safari.

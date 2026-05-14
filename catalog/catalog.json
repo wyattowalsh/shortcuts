@@ -87,7 +87,7 @@
             "hosted_offer": "after-safari-return",
             "input": "single-html-file",
             "local_render": "resolved-text-data-url",
-            "notes": "Shows a blocking pre-read confirmation, resolves the shared HTML file to renderable text, base64-encodes that render text, and opens Safari."
+            "notes": "User chooses Single HTML file, then the shortcut resolves the shared input to renderable text without file metadata lookup, base64-encodes that render text, and opens Safari."
           },
           {
             "hosted_offer": "after-safari-return",
@@ -103,8 +103,9 @@
           }
         ],
         "launch_diagnostics": [
-          "launch_canary_before_input_metadata",
-          "pre_read_confirmation_after_input_metadata"
+          "launch_canary_before_input_handling",
+          "user_selected_input_kind",
+          "pre_read_confirmation_after_input_kind_selection"
         ],
         "local_bundle": {
           "deterministic_command": "uv run shortcutkit html bundle path/to/index.html --output path/to/index.bundled.html --json",

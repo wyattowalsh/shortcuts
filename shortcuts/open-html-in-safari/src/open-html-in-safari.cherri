@@ -13,25 +13,24 @@
 #define mac false
 #define version 18
 
-confirm("Open HTML launched from the share sheet.\n\nTap OK to inspect the shared input. If you see this but no preflight after it, the failure is in input metadata detection.", "Open HTML")
+confirm("Open HTML launched from the share sheet.\n\nTap OK to choose how this shared input should be handled.", "Open HTML")
 
-// Detect input type using file extension and filename.
-@ext = getFileDetail(ShortcutInput, "File Extension")
-@inputExt = lowercase(@ext.text)
-@name = getFileDetail(ShortcutInput, "Name")
-@inputName = @name.text
-@inputNameLower = lowercase(@inputName)
+@inputType = typeOf(ShortcutInput)
+@inputKindOptions = list("Single HTML file", "ZIP archive", "Folder")
+@inputKind = chooseFromList(@inputKindOptions, "Shortcuts sees this input as: {@inputType}\n\nWhat did you share?", false, false)
+@inputName = "Shared {@inputKind.text}"
 @inputFiles = nil
 @targetFile = nil
 @mode = "unknown"
 @bundleStatus = "No local asset rewrite attempted."
 @assetScanCount = 0
+@entryName = @inputName
 
-// ZIP detection: extension or filename containing .zip.
-if @inputExt == "zip" || @inputNameLower contains ".zip" {
+if @inputKind.text == "ZIP archive" {
     showNotification("Extracting ZIP archive...", "Open HTML", false)
     @extracted = extractArchive(ShortcutInput)
     @inputFiles = @extracted
+    @assetScanCount = count(@inputFiles)
     @indexFile = nil
     @anyHtml = nil
     for item in @extracted {
@@ -53,16 +52,12 @@ if @inputExt == "zip" || @inputNameLower contains ".zip" {
     }
     @mode = "zip"
     @bundleStatus = "Archive extracted; supported same-name local asset references will be rewritten when found."
-} else if @inputExt == "html" || @inputExt == "htm" || @inputNameLower contains ".html" || @inputNameLower contains ".htm" {
-    showNotification("Reading single HTML file for Safari render...", "Open HTML", false)
-    @targetFile = ShortcutInput
-    @mode = "single-file"
-    @bundleStatus = "Single file resolved to HTML text; no sibling assets bundled."
-} else if @inputExt == "" {
+} else if @inputKind.text == "Folder" {
     // Folder: look for HTML files inside.
     showNotification("Folder detected. Searching for HTML files...", "Open HTML", false)
     @contents = getFolderContents(ShortcutInput, true)
     @inputFiles = @contents
+    @assetScanCount = count(@inputFiles)
     @indexFile = nil
     @anyHtml = nil
     for item in @contents {
@@ -87,59 +82,65 @@ if @inputExt == "zip" || @inputNameLower contains ".zip" {
     }
     @bundleStatus = "Folder scanned; supported same-name local asset references will be rewritten when found."
 } else {
-    show("Open HTML\n\nUnsupported input: {@inputName}\n\nShare a .html/.htm file, a ZIP archive, or a folder that contains HTML.")
-    stop()
+    showNotification("Reading single HTML input for Safari render...", "Open HTML", false)
+    @mode = "single-file"
+    @bundleStatus = "Single HTML input rendered directly from share-sheet text; no sibling assets bundled."
 }
 
-@entryNameDetail = getFileDetail(@targetFile, "Name")
-@entryName = @entryNameDetail.text
+if @targetFile {
+    @entryNameDetail = getFileDetail(@targetFile, "Name")
+    @entryName = @entryNameDetail.text
+}
 
 confirm("Open HTML preflight\n\nInput: {@inputName}\nDetected mode: {@mode}\nEntry HTML: {@entryName}\nLocal bundling: {@bundleStatus}\nScanned local files: {@assetScanCount}\n\nTap OK to read the HTML and prepare the Safari data URL.", "Open HTML")
 
-if @inputFiles {
-    showNotification("Attempting a local bundled render before Safari opens.", "Open HTML", false)
-    @assetScanCount = count(@inputFiles)
-    @renderHtml = getText(@targetFile)
-    for asset in @inputFiles {
-        @assetName = getFileDetail(@asset, "Name")
-        @assetExtDetail = getFileDetail(@asset, "File Extension")
-        @assetExt = lowercase(@assetExtDetail.text)
-        @assetMime = nil
-        if @assetExt == "css" {
-            @assetMime = "text/css"
-        } else if @assetExt == "js" || @assetExt == "mjs" {
-            @assetMime = "text/javascript"
-        } else if @assetExt == "png" {
-            @assetMime = "image/png"
-        } else if @assetExt == "jpg" || @assetExt == "jpeg" {
-            @assetMime = "image/jpeg"
-        } else if @assetExt == "gif" {
-            @assetMime = "image/gif"
-        } else if @assetExt == "webp" {
-            @assetMime = "image/webp"
-        } else if @assetExt == "avif" {
-            @assetMime = "image/avif"
-        } else if @assetExt == "svg" {
-            @assetMime = "image/svg+xml"
-        } else if @assetExt == "webmanifest" || @assetExt == "json" {
-            @assetMime = "application/manifest+json"
-        } else if @assetExt == "woff" {
-            @assetMime = "font/woff"
-        } else if @assetExt == "woff2" {
-            @assetMime = "font/woff2"
-        } else if @assetExt == "ttf" {
-            @assetMime = "font/ttf"
-        } else if @assetExt == "otf" {
-            @assetMime = "font/otf"
+if @targetFile {
+    if @inputFiles {
+        showNotification("Attempting a local bundled render before Safari opens.", "Open HTML", false)
+        @renderHtml = getText(@targetFile)
+        for asset in @inputFiles {
+            @assetName = getFileDetail(@asset, "Name")
+            @assetExtDetail = getFileDetail(@asset, "File Extension")
+            @assetExt = lowercase(@assetExtDetail.text)
+            @assetMime = nil
+            if @assetExt == "css" {
+                @assetMime = "text/css"
+            } else if @assetExt == "js" || @assetExt == "mjs" {
+                @assetMime = "text/javascript"
+            } else if @assetExt == "png" {
+                @assetMime = "image/png"
+            } else if @assetExt == "jpg" || @assetExt == "jpeg" {
+                @assetMime = "image/jpeg"
+            } else if @assetExt == "gif" {
+                @assetMime = "image/gif"
+            } else if @assetExt == "webp" {
+                @assetMime = "image/webp"
+            } else if @assetExt == "avif" {
+                @assetMime = "image/avif"
+            } else if @assetExt == "svg" {
+                @assetMime = "image/svg+xml"
+            } else if @assetExt == "webmanifest" || @assetExt == "json" {
+                @assetMime = "application/manifest+json"
+            } else if @assetExt == "woff" {
+                @assetMime = "font/woff"
+            } else if @assetExt == "woff2" {
+                @assetMime = "font/woff2"
+            } else if @assetExt == "ttf" {
+                @assetMime = "font/ttf"
+            } else if @assetExt == "otf" {
+                @assetMime = "font/otf"
+            }
+            if @assetMime {
+                @assetEncoded = base64Encode(@asset)
+                @assetUrl = "data:{@assetMime};base64,{@assetEncoded}"
+                @renderHtml = replaceText(@assetName.text, @assetUrl, @renderHtml, false, false)
+            }
         }
-        if @assetMime {
-            @assetEncoded = base64Encode(@asset)
-            @assetUrl = "data:{@assetMime};base64,{@assetEncoded}"
-            @renderHtml = replaceText(@assetName.text, @assetUrl, @renderHtml, false, false)
-        }
+    } else {
+        @renderHtml = getText(@targetFile)
     }
 } else {
-    @renderHtml = getText(@targetFile)
+    @renderHtml = getText(ShortcutInput)
 }
 
 @renderChars = count(@renderHtml, "Characters")
