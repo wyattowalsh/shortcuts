@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Open HTML Data Card</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: #f4f0e8;
+        color: #17202a;
+        font-family: ui-rounded, -apple-system, BlinkMacSystemFont, sans-serif;
+      }
+      article {
+        width: min(38rem, calc(100vw - 2rem));
+        display: grid;
+        grid-template-columns: 96px 1fr;
+        gap: 1.25rem;
+        padding: 1.5rem;
+        border: 1px solid #d5ccb9;
+        border-radius: 14px;
+        background: white;
+        box-shadow: 0 18px 48px rgba(23, 32, 42, 0.18);
+      }
+      svg {
+        width: 96px;
+        height: 96px;
+      }
+      h1 {
+        margin: 0;
+        font-size: 1.6rem;
+      }
+      dl {
+        display: grid;
+        grid-template-columns: max-content 1fr;
+        gap: 0.35rem 0.8rem;
+      }
+      dt {
+        color: #5d6d7e;
+      }
+      dd {
+        margin: 0;
+        font-weight: 650;
+      }
+    </style>
+  </head>
+  <body>
+    <article>
+      <svg viewBox="0 0 96 96" role="img" aria-label="Compass document">
+        <rect width="96" height="96" rx="20" fill="#2a9d8f" />
+        <path d="M28 24h30l10 10v38H28z" fill="#fff" />
+        <path d="M58 24v12h12" fill="#d9f3ef" />
+        <circle cx="48" cy="53" r="13" fill="#e76f51" />
+        <path d="M43 58l5-15 5 15-5-3z" fill="#fff" />
+      </svg>
+      <section>
+        <h1>Data Card</h1>
+        <p>Single-file rendering with inline SVG and structured content.</p>
+        <dl>
+          <dt>Input</dt>
+          <dd>single HTML file</dd>
+          <dt>Assets</dt>
+          <dd>inline only</dd>
+          <dt>Expected</dt>
+          <dd>opens in Safari via data URL</dd>
+        </dl>
+      </section>
+    </article>
+  </body>
+</html>

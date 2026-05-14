@@ -2,17 +2,150 @@
 #include 'actions/documents'
 #include 'actions/text'
 #include 'actions/crypto'
+#include 'actions/scripting'
 
 #define name Open HTML
 #define glyph magicWand
 #define color purple
 #define inputs file
 #define from sharesheet
-#define noinput stopwith "Share a local .html file to open it in Safari."
+#define noinput stopwith "Share a local .html file, ZIP archive, or folder to open it in Safari."
 #define mac false
 #define version 18
 
-showNotification("Opening bundled HTML in Safari. Use shortcutkit html publish for multi-file sites.", "Open HTML", false)
-@htmlText = getText(ShortcutInput)
-@encodedHtml = base64Encode(@htmlText)
+// Detect input type using file extension and filename.
+@ext = getFileDetail(ShortcutInput, "File Extension")
+@inputExt = lowercase(@ext.text)
+@name = getFileDetail(ShortcutInput, "Name")
+@inputName = @name.text
+@inputNameLower = lowercase(@inputName)
+@inputFiles = nil
+@targetFile = nil
+@mode = "unknown"
+@bundleStatus = "No local asset rewrite attempted."
+@assetScanCount = 0
+
+// ZIP detection: extension or filename containing .zip.
+if @inputExt == "zip" || @inputNameLower contains ".zip" {
+    showNotification("Extracting ZIP archive...", "Open HTML", false)
+    @extracted = extractArchive(ShortcutInput)
+    @inputFiles = @extracted
+    @indexFile = nil
+    @anyHtml = nil
+    for item in @extracted {
+        @itemName = getFileDetail(@item, "Name")
+        if @itemName.text contains "index.html" || @itemName.text contains "index.htm" {
+            @indexFile = @item
+        }
+        if @itemName.text contains ".html" || @itemName.text contains ".htm" {
+            @anyHtml = @item
+        }
+    }
+    if @indexFile {
+        @targetFile = @indexFile
+    } else if @anyHtml {
+        @targetFile = @anyHtml
+    } else {
+        showNotification("No HTML file found in ZIP. Share a bundled .html file or use shortcutkit CLI.", "Open HTML", false)
+        stop()
+    }
+    @mode = "zip"
+    @bundleStatus = "Archive extracted; supported same-name local asset references will be rewritten when found."
+} else if @inputExt == "html" || @inputExt == "htm" || @inputNameLower contains ".html" || @inputNameLower contains ".htm" {
+    showNotification("Reading single HTML file for Safari render...", "Open HTML", false)
+    @targetFile = ShortcutInput
+    @mode = "single-file"
+    @bundleStatus = "Single file resolved to HTML text; no sibling assets bundled."
+} else if @inputExt == "" {
+    // Folder: look for HTML files inside.
+    showNotification("Folder detected. Searching for HTML files...", "Open HTML", false)
+    @contents = getFolderContents(ShortcutInput, true)
+    @inputFiles = @contents
+    @indexFile = nil
+    @anyHtml = nil
+    for item in @contents {
+        @itemName = getFileDetail(@item, "Name")
+        if @itemName.text contains "index.html" || @itemName.text contains "index.htm" {
+            @indexFile = @item
+        }
+        if @itemName.text contains ".html" || @itemName.text contains ".htm" {
+            @anyHtml = @item
+        }
+    }
+    if @indexFile {
+        @targetFile = @indexFile
+        @mode = "folder"
+    } else if @anyHtml {
+        @targetFile = @anyHtml
+        @mode = "folder"
+    } else {
+        showNotification("No HTML file found in folder. Use the here.now deployment command shown next.", "Open HTML", false)
+        show("Open HTML\n\nShareable here.now URL\n\nDry run first:\nuv run shortcutkit html publish path/to/site --provider here-now --dry-run --json\n\nPublish when ready:\nuv run shortcutkit html publish path/to/site --provider here-now --run --json\n\nResult: JSON with site_url, file hashes, and publish status.")
+        stop()
+    }
+    @bundleStatus = "Folder scanned; supported same-name local asset references will be rewritten when found."
+} else {
+    show("Open HTML\n\nUnsupported input: {@inputName}\n\nShare a .html/.htm file, a ZIP archive, or a folder that contains HTML.")
+    stop()
+}
+
+@entryNameDetail = getFileDetail(@targetFile, "Name")
+@entryName = @entryNameDetail.text
+
+if @inputFiles {
+    showNotification("Attempting a local bundled render before Safari opens.", "Open HTML", false)
+    @assetScanCount = count(@inputFiles)
+    @renderHtml = getText(@targetFile)
+    for asset in @inputFiles {
+        @assetName = getFileDetail(@asset, "Name")
+        @assetExtDetail = getFileDetail(@asset, "File Extension")
+        @assetExt = lowercase(@assetExtDetail.text)
+        @assetMime = nil
+        if @assetExt == "css" {
+            @assetMime = "text/css"
+        } else if @assetExt == "js" || @assetExt == "mjs" {
+            @assetMime = "text/javascript"
+        } else if @assetExt == "png" {
+            @assetMime = "image/png"
+        } else if @assetExt == "jpg" || @assetExt == "jpeg" {
+            @assetMime = "image/jpeg"
+        } else if @assetExt == "gif" {
+            @assetMime = "image/gif"
+        } else if @assetExt == "webp" {
+            @assetMime = "image/webp"
+        } else if @assetExt == "avif" {
+            @assetMime = "image/avif"
+        } else if @assetExt == "svg" {
+            @assetMime = "image/svg+xml"
+        } else if @assetExt == "webmanifest" || @assetExt == "json" {
+            @assetMime = "application/manifest+json"
+        } else if @assetExt == "woff" {
+            @assetMime = "font/woff"
+        } else if @assetExt == "woff2" {
+            @assetMime = "font/woff2"
+        } else if @assetExt == "ttf" {
+            @assetMime = "font/ttf"
+        } else if @assetExt == "otf" {
+            @assetMime = "font/otf"
+        }
+        if @assetMime {
+            @assetEncoded = base64Encode(@asset)
+            @assetUrl = "data:{@assetMime};base64,{@assetEncoded}"
+            @renderHtml = replaceText(@assetName.text, @assetUrl, @renderHtml, false, false)
+        }
+    }
+} else {
+    @renderHtml = getText(@targetFile)
+}
+
+@renderChars = count(@renderHtml, "Characters")
+show("Open HTML\n\nReady to open in Safari.\n\nInput: {@inputName}\nDetected mode: {@mode}\nEntry HTML: {@entryName}\nLocal bundling: {@bundleStatus}\nScanned local files: {@assetScanCount}\nRender text characters: {@renderChars}\nSafari target: data:text/html;base64,...\n\nAfter Safari, return to Shortcuts for here.now share URL commands and backup options.")
+@encodedHtml = base64Encode(@renderHtml)
 openURL("data:text/html;base64,{@encodedHtml}")
+
+waitToReturn()
+show("Open HTML\n\nLocal Safari render attempted.\n\nShareable here.now URL\n\nDry run first:\nuv run shortcutkit html publish path/to/site --provider here-now --dry-run --json\n\nPublish when ready:\nuv run shortcutkit html publish path/to/site --provider here-now --run --json\n\nUseful output: site_url, files, SHA-256 hashes, fingerprint, and publish status.\n\nAnonymous sites expire after 24 hours unless you publish with an API key.")
+confirm("If Safari rendered the page poorly, preview the original file with Quick Look now?", "Open HTML Backup")
+quicklook(ShortcutInput)
+confirm("If Quick Look is not enough, open the iOS Open In picker for the original file?", "Open HTML Backup")
+openFile(ShortcutInput, true)

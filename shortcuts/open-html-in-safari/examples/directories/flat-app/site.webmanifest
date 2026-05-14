@@ -1,0 +1,7 @@
+{
+  "name": "Open HTML Flat App",
+  "short_name": "Flat App",
+  "display": "standalone",
+  "background_color": "#f8f4ec",
+  "theme_color": "#264653"
+}

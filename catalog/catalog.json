@@ -63,17 +63,94 @@
       "category": "productivity",
       "domains": [],
       "html_runtime": {
+        "hosted_deployment": {
+          "anonymous_expiration": "24h",
+          "dry_run_command": "uv run shortcutkit html publish path/to/site --provider here-now --dry-run --json",
+          "egress": "developer-initiated-explicit-command",
+          "output_fields": [
+            "site_url",
+            "files",
+            "sha256",
+            "fingerprint",
+            "status",
+            "expires_at"
+          ],
+          "provider": "here-now",
+          "publish_command": "uv run shortcutkit html publish path/to/site --provider here-now --run --json",
+          "secret_sources": [
+            "HERENOW_API_KEY",
+            "~/.herenow/credentials"
+          ]
+        },
+        "input_matrix": [
+          {
+            "hosted_offer": "after-safari-return",
+            "input": "single-html-file",
+            "local_render": "resolved-text-data-url",
+            "notes": "Resolves the shared HTML file to renderable text, shows a preflight metadata screen, base64-encodes that render text, and opens Safari."
+          },
+          {
+            "hosted_offer": "after-safari-return",
+            "input": "zip-archive",
+            "local_render": "best-effort-generated-bundle",
+            "notes": "Extracts the archive, chooses index.html or another HTML file, and rewrites supported same-name asset references."
+          },
+          {
+            "hosted_offer": "after-safari-return",
+            "input": "folder",
+            "local_render": "best-effort-generated-bundle",
+            "notes": "Scans recursively, chooses index.html or another HTML file, and rewrites supported same-name asset references."
+          }
+        ],
+        "local_bundle": {
+          "deterministic_command": "uv run shortcutkit html bundle path/to/index.html --output path/to/index.bundled.html --json",
+          "limitations": [
+            "Single-file rendering resolves HTML as text and is optimized for normal UTF-8 HTML files, not arbitrary legacy encodings.",
+            "Same-name replacement is best-effort and does not understand every nested path form.",
+            "Use shortcutkit html bundle for CSS url(), @import, srcset, deterministic hashing, and large-site diagnostics.",
+            "data: URL rendering can hit iOS or Safari size limits."
+          ],
+          "preflight_metadata": [
+            "input_name",
+            "detected_mode",
+            "entry_html",
+            "local_bundling_status",
+            "scanned_local_files",
+            "render_text_characters",
+            "safari_target_scheme"
+          ],
+          "rendered_scheme": "data:text/html;base64",
+          "strategy": "resolved-html-text-plus-best-effort-same-name-data-url-rewrite",
+          "supported_asset_extensions": [
+            "css",
+            "js",
+            "mjs",
+            "png",
+            "jpg",
+            "jpeg",
+            "gif",
+            "webp",
+            "avif",
+            "svg",
+            "json",
+            "webmanifest",
+            "woff",
+            "woff2",
+            "ttf",
+            "otf"
+          ]
+        },
         "profiles": [
           {
             "entrypoint": "dist/Open HTML.bundled.html",
             "id": "local-bundled",
-            "notes": "Use `shortcutkit html bundle` to inline supported local CSS and JavaScript before sharing the HTML text into the shortcut.",
+            "notes": "The shortcut resolves every input type to local render HTML text before opening Safari. Single files are optimized for normal UTF-8 HTML. ZIP and folder inputs also attempt best-effort same-name asset rewriting. Use `shortcutkit html bundle` for deterministic inlining of CSS, JavaScript, images, fonts, manifests, CSS url() dependencies, and srcset into a single self-contained HTML file.",
             "output": "dist/Open HTML.bundled.html",
             "support": "constrained"
           },
           {
             "id": "hosted",
-            "notes": "Use `shortcutkit html publish --provider here-now --dry-run` to plan a hosted multi-file Safari runtime; real publish requires explicit approval.",
+            "notes": "The shortcut always shows the here.now deployment command after the local render attempt. Use `shortcutkit html publish --provider here-now --dry-run` to plan a hosted multi-file Safari runtime; `--run` returns a shareable siteUrl and requires explicit approval.",
             "provider": "here-now",
             "support": "supported"
           }
@@ -101,7 +178,7 @@
       "review_required": true,
       "security_tier": "sensitive",
       "status": "experimental",
-      "summary": "Open bundled single-file HTML in Safari on iOS or iPadOS.",
+      "summary": "Try a local bundled Safari render, then offer a here.now share URL path.",
       "version": "0.1.0"
     }
   ],

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Open HTML Flat App</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="manifest" href="site.webmanifest" />
+  </head>
+  <body>
+    <main class="shell">
+      <img class="logo" src="logo.svg" alt="Open HTML app logo" />
+      <section>
+        <p class="eyebrow">Directory example</p>
+        <h1>Flat App</h1>
+        <p>
+          Share this folder into Open HTML. The shortcut should find this
+          `index.html`, rewrite same-name local assets, and open Safari.
+        </p>
+        <button id="statusButton" type="button">Check JavaScript</button>
+        <p id="status" class="status">Waiting for interaction.</p>
+      </section>
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>

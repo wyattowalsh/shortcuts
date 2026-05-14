@@ -1,7 +1,7 @@
 id: com.shortcuts.open-html-in-safari
 name: Open HTML
 version: 0.1.0
-summary: Open bundled single-file HTML in Safari on iOS or iPadOS.
+summary: Try a local bundled Safari render, then offer a here.now share URL path.
 category: productivity
 status: experimental
 license: MIT
@@ -39,16 +39,79 @@ declared_permissions:
   url_schemes:
     - data
 html_runtime:
+  input_matrix:
+    - input: single-html-file
+      local_render: resolved-text-data-url
+      hosted_offer: after-safari-return
+      notes: Resolves the shared HTML file to renderable text, shows a preflight metadata screen, base64-encodes that render text, and opens Safari.
+    - input: zip-archive
+      local_render: best-effort-generated-bundle
+      hosted_offer: after-safari-return
+      notes: Extracts the archive, chooses index.html or another HTML file, and rewrites supported same-name asset references.
+    - input: folder
+      local_render: best-effort-generated-bundle
+      hosted_offer: after-safari-return
+      notes: Scans recursively, chooses index.html or another HTML file, and rewrites supported same-name asset references.
   profiles:
     - id: local-bundled
       support: constrained
       entrypoint: dist/Open HTML.bundled.html
       output: dist/Open HTML.bundled.html
-      notes: Use `shortcutkit html bundle` to inline supported local CSS and JavaScript before sharing the HTML text into the shortcut.
+      notes: The shortcut resolves every input type to local render HTML text before opening Safari. Single files are optimized for normal UTF-8 HTML. ZIP and folder inputs also attempt best-effort same-name asset rewriting. Use `shortcutkit html bundle` for deterministic inlining of CSS, JavaScript, images, fonts, manifests, CSS url() dependencies, and srcset into a single self-contained HTML file.
     - id: hosted
       support: supported
       provider: here-now
-      notes: Use `shortcutkit html publish --provider here-now --dry-run` to plan a hosted multi-file Safari runtime; real publish requires explicit approval.
+      notes: The shortcut always shows the here.now deployment command after the local render attempt. Use `shortcutkit html publish --provider here-now --dry-run` to plan a hosted multi-file Safari runtime; `--run` returns a shareable siteUrl and requires explicit approval.
+  local_bundle:
+    strategy: resolved-html-text-plus-best-effort-same-name-data-url-rewrite
+    rendered_scheme: data:text/html;base64
+    preflight_metadata:
+      - input_name
+      - detected_mode
+      - entry_html
+      - local_bundling_status
+      - scanned_local_files
+      - render_text_characters
+      - safari_target_scheme
+    deterministic_command: uv run shortcutkit html bundle path/to/index.html --output path/to/index.bundled.html --json
+    supported_asset_extensions:
+      - css
+      - js
+      - mjs
+      - png
+      - jpg
+      - jpeg
+      - gif
+      - webp
+      - avif
+      - svg
+      - json
+      - webmanifest
+      - woff
+      - woff2
+      - ttf
+      - otf
+    limitations:
+      - Single-file rendering resolves HTML as text and is optimized for normal UTF-8 HTML files, not arbitrary legacy encodings.
+      - Same-name replacement is best-effort and does not understand every nested path form.
+      - Use shortcutkit html bundle for CSS url(), @import, srcset, deterministic hashing, and large-site diagnostics.
+      - "data: URL rendering can hit iOS or Safari size limits."
+  hosted_deployment:
+    provider: here-now
+    dry_run_command: uv run shortcutkit html publish path/to/site --provider here-now --dry-run --json
+    publish_command: uv run shortcutkit html publish path/to/site --provider here-now --run --json
+    output_fields:
+      - site_url
+      - files
+      - sha256
+      - fingerprint
+      - status
+      - expires_at
+    anonymous_expiration: 24h
+    egress: developer-initiated-explicit-command
+    secret_sources:
+      - HERENOW_API_KEY
+      - ~/.herenow/credentials
   size_gates:
     green_raw_bytes: 512000
     yellow_raw_bytes: 2097152
@@ -65,11 +128,23 @@ tests:
   manual:
     - Compile the Cherri source on a machine with the external Cherri compiler installed.
     - Import the generated shortcut into Apple Shortcuts on iOS or iPadOS.
-    - Build a constrained local bundle with `uv run shortcutkit html bundle path/to/index.html --output path/to/index.bundled.html --json`.
-    - Share the bundled HTML text into Open HTML and verify it shows the starting progress notification before opening Safari.
-    - Confirm Safari opens a `data:text/html;base64,...` page and JavaScript already inlined into the bundled HTML runs.
-    - For multi-file HTML, run `uv run shortcutkit html publish path/to/site --provider here-now --dry-run --json` first, then perform any real hosted publish only after explicit approval.
-    - Confirm the flow does not stop in Quick Look and does not wait on an Open In picker.
+    - Put `examples/single-file/01-inline-counter.html` in iCloud Drive, AirDrop it, or otherwise make it visible in the iOS Files app.
+    - In Files, long-press `01-inline-counter.html`, choose Share, then choose Open HTML.
+    - Confirm Open HTML shows a preflight metadata screen before Safari opens, including input name, detected mode, entry HTML, local bundling status, scanned local files, render text characters, and the data URL target scheme.
+    - Build a constrained local bundle with `uv run shortcutkit html bundle shortcuts/open-html-in-safari/examples/directories/flat-app/index.html --output /tmp/flat-app.bundled.html --json`.
+    - Share `examples/single-file/01-inline-counter.html` or `/tmp/flat-app.bundled.html` into Open HTML and verify it shows the starting progress notification and preflight metadata before opening Safari.
+    - Confirm Safari opens a `data:text/html;base64,...` page and UTF-8 text, CSS, and JavaScript render correctly.
+    - Share `examples/zips/flat-app.zip` and `examples/zips/mini-gallery.zip`; confirm the shortcut says it is attempting a local bundled render before Safari opens.
+    - Share `examples/directories/flat-app/` and `examples/directories/mini-gallery/`; confirm recursive scanning, local asset rewriting, and Safari rendering.
+    - Confirm the ZIP/folder local render path rewrites supported same-name asset references to data URLs and opens the generated bundled HTML in Safari.
+    - Confirm the shortcut shows the here.now deployment command after returning from Safari, including `uv run shortcutkit html publish path/to/site --provider here-now --run --json`.
+    - Return to Shortcuts and confirm the Quick Look backup prompt appears when Safari rendered poorly.
+    - Accept the Quick Look backup and verify it previews the original shared file.
+    - Accept the Open In backup prompt and verify iOS offers the native file handoff picker.
+    - Confirm JavaScript already inlined into the bundled HTML runs during the Safari attempt.
+    - For multi-file HTML, run `uv run shortcutkit html publish path/to/site --provider here-now --dry-run --json` first, then perform any real hosted publish with `--run` only after explicit approval.
+    - When Safari succeeds, return to Shortcuts, decline backup prompts, and confirm Quick Look/Open In do not run.
     - Share a large bundled HTML file and confirm Safari either opens it or iOS fails without modifying the source file.
     - Run the shortcut with no share-sheet input and verify it stops with the configured no-input message.
-    - Confirm the shortcut reads shared HTML text, base64-encodes it, opens a data URL, and does not request clipboard, AI, shell, or network actions.
+    - Confirm the shortcut reads shared HTML, attempts local asset inlining for ZIP/folder inputs, base64-encodes the local render result, opens a data URL, and backup methods use only the original share-sheet file input.
+    - Confirm the shortcut does not request clipboard, AI, shell, or network actions.

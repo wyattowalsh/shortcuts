@@ -38,20 +38,33 @@ def test_share_sheet_open_html_permissions_are_detected() -> None:
     assert audit.summary["review_required"] is True
 
 
-def test_open_html_uses_safari_runtime_without_picker_handoff() -> None:
+def test_open_html_uses_safari_runtime_with_file_backups() -> None:
     root = Path(__file__).resolve().parents[3]
     source = (
         root / "shortcuts" / "open-html-in-safari" / "src" / "open-html-in-safari.cherri"
     ).read_text(encoding="utf-8")
 
-    assert "getText(ShortcutInput)" in source
-    assert "base64Encode(@htmlText)" in source
+    assert "getFileDetail(ShortcutInput" in source
+    assert "extractArchive(ShortcutInput)" in source
+    assert "getFolderContents(ShortcutInput, true)" in source
+    assert "Attempting a local bundled render before Safari opens." in source
+    assert "Reading single HTML file for Safari render..." in source
+    assert "Ready to open in Safari." in source
+    assert "getText(@targetFile)" in source
+    assert "replaceText(@assetName.text, @assetUrl, @renderHtml, false, false)" in source
+    assert "base64Encode(@renderHtml)" in source
+    assert "base64Encode(@targetFile)" not in source
     assert 'openURL("data:text/html;base64,{@encodedHtml}")' in source
-    assert source.count("showNotification(") == 1
+    assert "waitToReturn()" in source
+    assert "uv run shortcutkit html publish path/to/site --provider here-now --run --json" in source
+    assert "quicklook(ShortcutInput)" in source
+    assert "openFile(ShortcutInput, true)" in source
+    assert "Single file resolved to HTML text" in source
+    assert "No HTML file found in ZIP." in source
+    assert "No HTML file found in folder." in source
+    assert source.count('"Open HTML Backup"') == 2
     assert "getFileLink(ShortcutInput)" not in source
     assert "openURL(@fileLink)" not in source
-    assert "quicklook(" not in source
-    assert "openFile(" not in source
     assert "#define glyph magicWand" in source
 
 
@@ -86,3 +99,63 @@ def test_declared_url_scheme_accepts_colon_suffix() -> None:
         finding.id == "declared.url_schemes" and finding.evidence == ["data"]
         for finding in audit.findings
     )
+
+
+def test_css_declarations_are_not_detected_as_url_schemes(tmp_path: Path, monkeypatch) -> None:
+    package = tmp_path / "shortcut"
+    source = package / "src"
+    source.mkdir(parents=True)
+    (package / "README.md").write_text("# CSS Scheme Fixture\n", encoding="utf-8")
+    (source / "style.css").write_text("body{color:red}", encoding="utf-8")
+    (package / "shortcut.yml").write_text(
+        """
+id: com.shortcuts.tests.css-scheme-fixture
+name: CSS Scheme Fixture
+version: 0.1.0
+summary: Fixture for CSS scheme scanning.
+category: testing
+status: experimental
+license: MIT
+maintainers:
+  - name: test maintainer
+source:
+  mode: manual
+  entrypoint: src/style.css
+declared_permissions:
+  clipboard:
+    read: false
+    write: false
+  network:
+    allowed: false
+    domains: []
+  ai:
+    uses_model_action: false
+  shell: false
+  url_schemes: []
+security:
+  tier: low
+  data_leaves_device: false
+  review_status: fixture
+tests:
+  static:
+    enabled: true
+  runtime:
+    enabled: false
+  manual:
+    - Fixture-only manual verification placeholder.
+""".lstrip(),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        "shortcutkit.manifest.find_repo_root",
+        lambda _path: Path(__file__).resolve().parents[3],
+    )
+    monkeypatch.setattr(
+        "shortcutkit.security.find_repo_root",
+        lambda _path: Path(__file__).resolve().parents[3],
+    )
+
+    audit = audit_package(package, strict=True)
+
+    assert audit.passed is True
+    assert not any(finding.id == "mismatch.url_schemes" for finding in audit.findings)

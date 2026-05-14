@@ -1,0 +1,100 @@
+---
+title: Catalog Reference
+description: Generated shortcut catalog reference.
+generated: true
+---
+
+# Catalog Reference
+
+## AI Summarize
+
+- ID: `com.shortcuts.examples.ai-summarize`
+- Version: `0.1.0`
+- Status: `experimental`
+- Path: `shortcuts/examples/ai-summarize`
+- Security tier: `sensitive`
+- Permission badges: `ai, clipboard`
+- Review required: `true`
+
+Summarize clipboard text with an explicitly declared model action.
+
+## Clean Clipboard
+
+- ID: `com.shortcuts.examples.clean-clipboard`
+- Version: `0.1.0`
+- Status: `experimental`
+- Path: `shortcuts/examples/clean-clipboard`
+- Security tier: `interactive`
+- Permission badges: `clipboard`
+- Review required: `true`
+
+Normalize clipboard text by trimming whitespace and removing common tracking parameters.
+
+## Network Note
+
+- ID: `com.shortcuts.examples.network-note`
+- Version: `0.1.0`
+- Status: `experimental`
+- Path: `shortcuts/examples/network-note`
+- Security tier: `sensitive`
+- Permission badges: `clipboard, network`
+- Review required: `true`
+
+Fetch a text note from an approved example endpoint and copy it to the clipboard.
+
+## Open HTML
+
+![Open HTML shortcut icon with an HTML document, Safari compass, and share arrow.](/catalog-icons/com.shortcuts.open-html-in-safari.png)
+
+- ID: `com.shortcuts.open-html-in-safari`
+- Version: `0.1.0`
+- Status: `experimental`
+- Path: `shortcuts/open-html-in-safari`
+- Security tier: `sensitive`
+- Permission badges: `files, url-schemes`
+- Review required: `true`
+- Icon: `icon.png`
+- Icon SHA-256: `4413115dfe470147c8240fa8e0231469032adb24f579db2e708e218b65fdd702`
+
+Try a local bundled Safari render, then offer a here.now share URL path.
+
+### HTML Runtime
+
+- `local-bundled`: `constrained`. The shortcut resolves every input type to local render HTML text before opening Safari. Single files are optimized for normal UTF-8 HTML. ZIP and folder inputs also attempt best-effort same-name asset rewriting. Use `shortcutkit html bundle` for deterministic inlining of CSS, JavaScript, images, fonts, manifests, CSS url() dependencies, and srcset into a single self-contained HTML file.
+- `hosted`: `supported` via `here-now`. The shortcut always shows the here.now deployment command after the local render attempt. Use `shortcutkit html publish --provider here-now --dry-run` to plan a hosted multi-file Safari runtime; `--run` returns a shareable siteUrl and requires explicit approval.
+
+#### Input Behavior
+
+| Input | Local render | Share URL offer | Notes |
+| --- | --- | --- | --- |
+| `single-html-file` | `resolved-text-data-url` | `after-safari-return` | Resolves the shared HTML file to renderable text, shows a preflight metadata screen, base64-encodes that render text, and opens Safari. |
+| `zip-archive` | `best-effort-generated-bundle` | `after-safari-return` | Extracts the archive, chooses index.html or another HTML file, and rewrites supported same-name asset references. |
+| `folder` | `best-effort-generated-bundle` | `after-safari-return` | Scans recursively, chooses index.html or another HTML file, and rewrites supported same-name asset references. |
+
+#### Local Bundle
+
+- Strategy: `resolved-html-text-plus-best-effort-same-name-data-url-rewrite`
+- Rendered scheme: `data:text/html;base64`
+- Deterministic command: `uv run shortcutkit html bundle path/to/index.html --output path/to/index.bundled.html --json`
+- Supported asset extensions: `css`, `js`, `mjs`, `png`, `jpg`, `jpeg`, `gif`, `webp`, `avif`, `svg`, `json`, `webmanifest`, `woff`, `woff2`, `ttf`, `otf`
+- Limitations:
+  - Single-file rendering resolves HTML as text and is optimized for normal UTF-8 HTML files, not arbitrary legacy encodings.
+  - Same-name replacement is best-effort and does not understand every nested path form.
+  - Use shortcutkit html bundle for CSS url(), @import, srcset, deterministic hashing, and large-site diagnostics.
+  - data: URL rendering can hit iOS or Safari size limits.
+
+#### Hosted Deployment
+
+- Provider: `here-now`
+- Dry-run command: `uv run shortcutkit html publish path/to/site --provider here-now --dry-run --json`
+- Publish command: `uv run shortcutkit html publish path/to/site --provider here-now --run --json`
+- Anonymous expiration: `24h`
+- Egress: `developer-initiated-explicit-command`
+- Output fields: `site_url`, `files`, `sha256`, `fingerprint`, `status`, `expires_at`
+- Secret sources: `HERENOW_API_KEY`, `~/.herenow/credentials`
+
+#### Size Gates
+
+- `green_raw_bytes`: `512000`
+- `yellow_raw_bytes`: `2097152`
+- `red_above_raw_bytes`: `2097152`

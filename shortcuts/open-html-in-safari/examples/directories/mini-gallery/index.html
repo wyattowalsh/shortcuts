@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Open HTML Mini Gallery</title>
+    <link rel="stylesheet" href="gallery.css" />
+  </head>
+  <body>
+    <header>
+      <img src="badge.svg" alt="Gallery badge" />
+      <div>
+        <p>Directory example</p>
+        <h1>Mini Gallery</h1>
+      </div>
+    </header>
+    <main>
+      <button type="button" data-view="dawn">Show Dawn</button>
+      <button type="button" data-view="dusk">Show Dusk</button>
+      <figure>
+        <img id="dawn" src="photo-a.svg" alt="Generated dawn landscape" />
+        <img id="dusk" src="photo-b.svg" alt="Generated dusk landscape" hidden />
+        <figcaption id="caption">Dawn palette loaded from a sibling SVG file.</figcaption>
+      </figure>
+    </main>
+    <script src="gallery.js"></script>
+  </body>
+</html>

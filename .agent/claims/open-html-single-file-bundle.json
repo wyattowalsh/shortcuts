@@ -1,0 +1,19 @@
+{
+	"task_id": "open-html-single-file-bundle",
+	"agent": "codex",
+	"claimed_at": "2026-05-14T09:46:47Z",
+	"scope": [
+		"packages/shortcutkit/src/shortcutkit/html_runtime.py",
+		"packages/shortcutkit/src/shortcutkit/models.py",
+		"packages/shortcutkit/src/shortcutkit/cli.py",
+		"packages/shortcutkit/tests/test_cli.py",
+		"packages/shortcutkit/tests/fixtures/html-*",
+		"shortcuts/open-html-in-safari/README.md",
+		"shortcuts/open-html-in-safari/shortcut.yml",
+		"shortcuts/open-html-in-safari/src/open-html-in-safari.cherri",
+		"shortcuts/open-html-in-safari/examples/README.md",
+		"openspec/changes/add-html-runtime-profiles"
+	],
+	"goal": "Fix Open HTML single-file rendering by resolving shared HTML files to local render HTML text before Base64/Safari handoff, while preserving ZIP/folder bundling and here.now guidance.",
+	"notes": "Working on main with an already dirty worktree. Preserve unrelated changes. The previous direct base64Encode(ShortcutInput) single-file path completed silently on-device, so this pass replaces it with a visible preflight and getText-based render string path for normal UTF-8 HTML."
+}
