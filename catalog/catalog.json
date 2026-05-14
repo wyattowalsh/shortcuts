@@ -87,7 +87,7 @@
             "hosted_offer": "after-safari-return",
             "input": "single-html-file",
             "local_render": "resolved-text-data-url",
-            "notes": "Resolves the shared HTML file to renderable text, shows a preflight metadata screen, base64-encodes that render text, and opens Safari."
+            "notes": "Shows a blocking pre-read confirmation, resolves the shared HTML file to renderable text, base64-encodes that render text, and opens Safari."
           },
           {
             "hosted_offer": "after-safari-return",
@@ -110,12 +110,14 @@
             "Use shortcutkit html bundle for CSS url(), @import, srcset, deterministic hashing, and large-site diagnostics.",
             "data: URL rendering can hit iOS or Safari size limits."
           ],
-          "preflight_metadata": [
+          "pre_read_confirmation": [
             "input_name",
             "detected_mode",
             "entry_html",
             "local_bundling_status",
-            "scanned_local_files",
+            "scanned_local_files"
+          ],
+          "ready_metadata": [
             "render_text_characters",
             "safari_target_scheme"
           ],

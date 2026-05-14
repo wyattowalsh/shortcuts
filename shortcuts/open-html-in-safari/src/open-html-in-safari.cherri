@@ -92,6 +92,8 @@ if @inputExt == "zip" || @inputNameLower contains ".zip" {
 @entryNameDetail = getFileDetail(@targetFile, "Name")
 @entryName = @entryNameDetail.text
 
+confirm("Open HTML preflight\n\nInput: {@inputName}\nDetected mode: {@mode}\nEntry HTML: {@entryName}\nLocal bundling: {@bundleStatus}\nScanned local files: {@assetScanCount}\n\nTap OK to read the HTML and prepare the Safari data URL.", "Open HTML")
+
 if @inputFiles {
     showNotification("Attempting a local bundled render before Safari opens.", "Open HTML", false)
     @assetScanCount = count(@inputFiles)

@@ -10,7 +10,7 @@
 
 Fixed the on-device single-file failure path where sharing `examples/single-file/01-inline-counter.html` completed with a checkmark but did not visibly open Safari.
 
-The shortcut no longer Base64-encodes the shared file object directly for single HTML inputs. It now resolves every supported input type to local render HTML text first, shows a preflight metadata screen, Base64-encodes the render text, and opens Safari with `data:text/html;base64,...`.
+The shortcut no longer Base64-encodes the shared file object directly for single HTML inputs. It now shows a blocking pre-read confirmation before attempting to read HTML text, resolves every supported input type to local render HTML text, shows ready metadata after the read succeeds, Base64-encodes the render text, and opens Safari with `data:text/html;base64,...`.
 
 ## Changes
 
@@ -18,13 +18,14 @@ The shortcut no longer Base64-encodes the shared file object directly for single
   - Detects `.html` / `.htm` from lowercase extension and filename before folder fallback.
   - Uses `getText(@targetFile)` for single files, ZIP-selected HTML, and folder-selected HTML.
   - Removes the direct `base64Encode(@targetFile)` single-file path.
-  - Adds a preflight `show(...)` screen with input name, detected mode, entry HTML, local bundling status, scanned file count, render text character count, and Safari target scheme.
+  - Adds a pre-read `confirm(...)` prompt with input name, detected mode, entry HTML, local bundling status, and scanned file count.
+  - Keeps the ready `show(...)` screen after HTML text is resolved, including render text character count and Safari target scheme.
   - Keeps the here.now command display after returning from Safari.
   - Keeps Quick Look and Open In backups behind confirmations.
 - `shortcut.yml`, package README, generated catalog/docs
   - Updated single-file runtime metadata from direct-byte rendering to resolved-text rendering.
   - Documented the UTF-8/normal HTML assumption and deterministic CLI bundler fallback.
-  - Added phone test expectations for the preflight screen, Safari data URL, here.now prompt, and backups.
+  - Added phone test expectations for the pre-read confirmation, ready screen, Safari data URL, here.now prompt, and backups.
 - `examples/README.md`
   - Reworked into an iPhone test matrix for single files, directories, and ZIP archives.
 - `packages/shortcutkit/tests/test_security.py`
@@ -52,9 +53,10 @@ Install or import the rebuilt `Open HTML.shortcut` on the iPhone, then share `ex
 
 Expected result:
 
-1. The preflight metadata screen appears and reports `single-file`.
-2. Safari opens a `data:text/html;base64,...` page.
-3. The counter page renders and the button increments.
-4. Returning to Shortcuts shows the here.now commands and backup prompts.
+1. The blocking pre-read confirmation appears and reports `single-file`.
+2. The ready screen appears after the file is read.
+3. Safari opens a `data:text/html;base64,...` page.
+4. The counter page renders and the button increments.
+5. Returning to Shortcuts shows the here.now commands and backup prompts.
 
 Then repeat with `examples/directories/flat-app/` and `examples/zips/flat-app.zip`.

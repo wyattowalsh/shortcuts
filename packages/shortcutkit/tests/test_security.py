@@ -49,6 +49,8 @@ def test_open_html_uses_safari_runtime_with_file_backups() -> None:
     assert "getFolderContents(ShortcutInput, true)" in source
     assert "Attempting a local bundled render before Safari opens." in source
     assert "Reading single HTML file for Safari render..." in source
+    assert "Open HTML preflight" in source
+    assert "Tap OK to read the HTML" in source
     assert "Ready to open in Safari." in source
     assert "getText(@targetFile)" in source
     assert "replaceText(@assetName.text, @assetUrl, @renderHtml, false, false)" in source
